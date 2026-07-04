@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b1020">
+<title>Rehab Run Trainer</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --card:#151b30;
+    --run:#22c55e;
+    --run-dim:#0f3d24;
+    --walk:#38bdf8;
+    --walk-dim:#0d3450;
+    --ready:#a78bfa;
+    --text:#f4f6fb;
+    --muted:#8b93ad;
+    --ring-track:#252e49;
+    --good:#22c55e;
+    --warn:#f59e0b;
+    --bad:#f43f5e;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100%;
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    transition:background .5s ease;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  body.phase-run{background:radial-gradient(120% 90% at 50% -10%, #0f3d24 0%, #0b1020 60%)}
+  body.phase-walk{background:radial-gradient(120% 90% at 50% -10%, #0d3450 0%, #0b1020 60%)}
+
+  header{
+    text-align:center;
+    padding:18px 16px 6px;
+  }
+  header h1{font-size:15px;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
+  header .sub{font-size:12px;color:var(--muted);margin-top:4px;opacity:.75}
+
+  main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:22px;
+    padding:8px 20px;
+  }
+
+  /* Ring + timer */
+  .ring-wrap{position:relative;width:min(74vw,320px);aspect-ratio:1/1}
+  svg.ring{width:100%;height:100%;transform:rotate(-90deg)}
+  .ring-track{fill:none;stroke:var(--ring-track);stroke-width:10}
+  .ring-prog{fill:none;stroke:var(--run);stroke-width:10;stroke-linecap:round;transition:stroke .4s ease}
+  .ring-center{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;
+  }
+  .phase-label{
+    font-size:15px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+    color:var(--muted);transition:color .4s ease;
+  }
+  .time{font-variant-numeric:tabular-nums;font-weight:800;font-size:74px;line-height:1;margin:6px 0 2px}
+  .pace{font-size:14px;color:var(--muted);font-weight:600}
+  .pace b{color:var(--text)}
+
+  /* Set counter */
+  .setline{font-size:15px;color:var(--muted);font-weight:600}
+  .setline b{color:var(--text);font-size:17px}
+  .dots{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:280px}
+  .dot{width:14px;height:14px;border-radius:50%;background:var(--ring-track);transition:background .3s ease,transform .3s ease}
+  .dot.done{background:var(--run)}
+  .dot.current{background:var(--run);transform:scale(1.35);box-shadow:0 0 0 4px rgba(34,197,94,.18)}
+
+  /* Controls */
+  .controls{display:flex;gap:14px;align-items:center;justify-content:center;padding:6px 20px 26px;width:100%}
+  button{
+    font-family:inherit;font-weight:700;border:none;cursor:pointer;color:var(--text);
+    border-radius:16px;transition:transform .1s ease,background .2s ease,opacity .2s ease;
+  }
+  button:active{transform:scale(.95)}
+  .btn-primary{
+    flex:1;max-width:340px;padding:20px;font-size:19px;letter-spacing:.5px;
+    background:var(--run);color:#04210f;
+  }
+  .btn-primary.paused{background:var(--walk);color:#042031}
+  .btn-secondary{
+    padding:20px 22px;font-size:15px;background:var(--card);color:var(--muted);
+  }
+
+  /* Setup panel */
+  .setup{
+    background:var(--card);border-radius:20px;padding:18px;width:100%;max-width:340px;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .setup h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:center}
+  .field{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .field label{font-size:15px;color:var(--text);font-weight:600}
+  .stepper{display:flex;align-items:center;gap:10px}
+  .stepper button{width:38px;height:38px;background:var(--bg);color:var(--text);font-size:22px;border-radius:12px;line-height:1}
+  .stepper .val{min-width:64px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+  .stepper .val small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+
+  .hint{font-size:12px;color:var(--muted);text-align:center;line-height:1.5;padding:0 10px;opacity:.85}
+  .hidden{display:none!important}
+
+  /* Live pace tracker */
+  .pace-panel{
+    background:var(--card);border-radius:20px;padding:16px 18px 18px;width:100%;max-width:340px;
+    display:flex;flex-direction:column;gap:14px;transition:opacity .3s ease;
+  }
+  .pace-panel.idle{opacity:.55}
+  .pace-top{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+  .pace-now{display:flex;flex-direction:column;line-height:1}
+  .pace-now span{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+  .pace-now small,.pace-pct small{font-size:11px;color:var(--muted);font-weight:600;margin-top:3px}
+  .pace-pct{display:flex;flex-direction:column;line-height:1;text-align:right}
+  .pace-pct span{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+  .pace-status{
+    font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+    padding:6px 12px;border-radius:999px;background:var(--ring-track);color:var(--muted);
+    white-space:nowrap;transition:background .3s ease,color .3s ease;align-self:center;
+  }
+  .pace-status.good{background:rgba(34,197,94,.16);color:var(--good)}
+  .pace-status.warn{background:rgba(245,158,11,.16);color:var(--warn)}
+  .pace-status.bad{background:rgba(244,63,94,.16);color:var(--bad)}
+  .pace-status.info{background:rgba(56,189,248,.16);color:var(--walk)}
+
+  .gauge{position:relative;height:34px}
+  .gauge-bar{position:absolute;left:0;right:0;top:12px;height:10px;border-radius:6px;background:var(--ring-track)}
+  .gauge-zone{position:absolute;top:12px;height:10px;border-radius:6px;background:rgba(34,197,94,.35);
+    border:1px solid rgba(34,197,94,.6)}
+  .gauge-target{position:absolute;top:8px;height:18px;width:2px;background:var(--text);left:50%;transform:translateX(-50%);opacity:.7}
+  .gauge-marker{position:absolute;top:5px;width:16px;height:24px;border-radius:6px;background:var(--good);
+    left:50%;transform:translateX(-50%);box-shadow:0 2px 8px rgba(0,0,0,.4);
+    transition:left .5s cubic-bezier(.4,0,.2,1),background .3s ease;border:2px solid rgba(255,255,255,.85)}
+  .gauge-labels{position:absolute;top:30px;left:0;right:0;display:flex;justify-content:space-between;
+    font-size:10px;color:var(--muted);font-weight:600}
+  .gauge-labels b{color:var(--text)}
+
+  /* Complete state */
+  .done-emoji{font-size:64px;margin-bottom:4px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Rehab Run Trainer</h1>
+  <div class="sub" id="planSummary">Phase 1 · run / walk intervals</div>
+</header>
+
+<main>
+  <!-- SETUP -->
+  <section id="setupView">
+    <div class="setup">
+      <h2>Phase 1 Workout</h2>
+      <div class="field">
+        <label>Run</label>
+        <div class="stepper">
+          <button data-step="run" data-d="-15">−</button>
+          <div class="val"><span id="runVal">1:00</span><small>at 6:30 /km</small></div>
+          <button data-step="run" data-d="15">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Walk</label>
+        <div class="stepper">
+          <button data-step="walk" data-d="-15">−</button>
+          <div class="val"><span id="walkVal">2:00</span><small>recovery</small></div>
+          <button data-step="walk" data-d="15">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Sets</label>
+        <div class="stepper">
+          <button data-step="sets" data-d="-1">−</button>
+          <div class="val"><span id="setsVal">10</span><small>rounds</small></div>
+          <button data-step="sets" data-d="1">+</button>
+        </div>
+      </div>
+    </div>
+    <p class="hint" style="margin-top:16px">Total <b id="totalTime">30:00</b> · Voice &amp; sound cues fire at every switch. 🔊 Turn your volume up. 📍 Allow location for live pace.</p>
+  </section>
+
+  <!-- ACTIVE -->
+  <section id="activeView" class="hidden" style="display:flex;flex-direction:column;align-items:center;gap:22px;width:100%">
+    <div class="ring-wrap">
+      <svg class="ring" viewBox="0 0 200 200">
+        <circle class="ring-track" cx="100" cy="100" r="90"></circle>
+        <circle class="ring-prog" id="ringProg" cx="100" cy="100" r="90"
+                stroke-dasharray="565.48" stroke-dashoffset="0"></circle>
+      </svg>
+      <div class="ring-center">
+        <div class="phase-label" id="phaseLabel">Get Ready</div>
+        <div class="time" id="timeDisplay">3</div>
+        <div class="pace" id="paceHint">target <b>6:30</b> /km</div>
+      </div>
+    </div>
+    <div class="setline">Set <b id="setNum">1</b> of <span id="setTotal">10</span></div>
+    <div class="dots" id="dots"></div>
+
+    <div class="pace-panel idle" id="pacePanel">
+      <div class="pace-top">
+        <div class="pace-now"><span id="paceNow">--:--</span><small>/km now</small></div>
+        <div class="pace-status info" id="paceStatus">Locating…</div>
+        <div class="pace-pct"><span id="pacePct">--</span><small>% of target</small></div>
+      </div>
+      <div class="gauge">
+        <div class="gauge-bar"></div>
+        <div class="gauge-zone" id="gaugeZone"></div>
+        <div class="gauge-target"></div>
+        <div class="gauge-marker" id="gaugeMarker"></div>
+        <div class="gauge-labels"><span>slower</span><span><b id="gaugeTargetLbl">6:30</b></span><span>faster</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPLETE -->
+  <section id="doneView" class="hidden" style="text-align:center">
+    <div class="done-emoji">🎉</div>
+    <div class="time" style="font-size:34px">Nice work!</div>
+    <p class="hint" style="margin-top:10px" id="doneSummary"></p>
+  </section>
+</main>
+
+<div class="controls">
+  <button class="btn-primary" id="mainBtn">Start</button>
+  <button class="btn-secondary hidden" id="resetBtn">Reset</button>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  // ---------- Config ----------
+  const cfg = { run: 60, walk: 120, sets: 10, pace: "6:30" };
+  const READY = 3; // countdown seconds before first run
+
+  // ---------- Elements ----------
+  const $ = id => document.getElementById(id);
+  const body = document.body;
+  const setupView = $("setupView"), activeView = $("activeView"), doneView = $("doneView");
+  const mainBtn = $("mainBtn"), resetBtn = $("resetBtn");
+  const phaseLabel = $("phaseLabel"), timeDisplay = $("timeDisplay"), paceHint = $("paceHint");
+  const ringProg = $("ringProg"), setNum = $("setNum"), setTotal = $("setTotal"), dotsEl = $("dots");
+  const RING_LEN = 2 * Math.PI * 90;
+  ringProg.style.strokeDasharray = RING_LEN;
+
+  // ---------- State ----------
+  let plan = [];            // ordered segments
+  let segIndex = 0;         // index in plan
+  let segStart = 0;         // performance.now() at segment start
+  let paused = false, pausedAt = 0;
+  let running = false;
+  let raf = null;
+  let lastTickSecond = -1;  // for per-second countdown beeps
+  let wakeLock = null;
+
+  // ---------- Helpers ----------
+  const fmt = s => { s = Math.max(0, Math.ceil(s)); const m = Math.floor(s/60); const r = s%60; return m+":"+String(r).padStart(2,"0"); };
+  const fmtLoose = s => { const m = Math.floor(s/60); const r = s%60; return r? m+":"+String(r).padStart(2,"0") : m+":00"; };
+
+  function buildPlan(){
+    plan = [{phase:"ready", dur:READY, set:0}];
+    for(let i=1;i<=cfg.sets;i++){
+      plan.push({phase:"run",  dur:cfg.run,  set:i});
+      plan.push({phase:"walk", dur:cfg.walk, set:i});
+    }
+  }
+
+  // ---------- Setup UI ----------
+  function refreshSetup(){
+    $("runVal").textContent  = fmtLoose(cfg.run);
+    $("walkVal").textContent = fmtLoose(cfg.walk);
+    $("setsVal").textContent = cfg.sets;
+    const total = cfg.sets*(cfg.run+cfg.walk);
+    $("totalTime").textContent = fmtLoose(total);
+    $("planSummary").textContent = `Phase 1 · ${fmtLoose(cfg.run)} run / ${fmtLoose(cfg.walk)} walk × ${cfg.sets}`;
+    $("paceHint").innerHTML = `target <b>${cfg.pace}</b> /km`;
+  }
+  document.querySelectorAll('.stepper button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const k=b.dataset.step, d=parseInt(b.dataset.d,10);
+      if(k==='run')  cfg.run  = Math.max(15, cfg.run + d);
+      if(k==='walk') cfg.walk = Math.max(15, cfg.walk + d);
+      if(k==='sets') cfg.sets = Math.min(30, Math.max(1, cfg.sets + d));
+      refreshSetup();
+    });
+  });
+
+  function buildDots(){
+    dotsEl.innerHTML="";
+    for(let i=0;i<cfg.sets;i++){
+      const d=document.createElement('div'); d.className='dot'; d.dataset.i=i; dotsEl.appendChild(d);
+    }
+  }
+  function paintDots(currentSet){
+    [...dotsEl.children].forEach((d,i)=>{
+      d.className='dot';
+      if(i < currentSet-1) d.classList.add('done');
+      else if(i === currentSet-1) d.classList.add('current');
+    });
+  }
+
+  // ---------- Audio ----------
+  let ac = null, audioUnlocked = false;
+  function ensureAudio(){
+    if(!ac){ ac = new (window.AudioContext||window.webkitAudioContext)(); }
+    if(ac.state === 'suspended') ac.resume();
+  }
+  // Must run synchronously inside a user tap to satisfy iOS autoplay rules,
+  // and primes speech synthesis on the first gesture.
+  function unlockAudio(){
+    ensureAudio();
+    try{ // silent 1-sample buffer fully unlocks the context on iOS
+      const b = ac.createBuffer(1,1,22050);
+      const s = ac.createBufferSource(); s.buffer=b; s.connect(ac.destination); s.start(0);
+    }catch(e){}
+    try{ if('speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); } }catch(e){}
+    audioUnlocked = true;
+  }
+  function beep(freq, start, dur, gain=0.32, type='sine'){
+    const t0 = ac.currentTime + start;
+    const osc = ac.createOscillator();
+    const g = ac.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(gain, t0+0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+    osc.connect(g).connect(ac.destination);
+    osc.start(t0); osc.stop(t0+dur+0.02);
+  }
+  function say(text){
+    try{
+      if(!('speechSynthesis' in window)) return;
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 1.0; u.pitch = 1.0; u.volume = 1;
+      speechSynthesis.speak(u);
+    }catch(e){}
+  }
+  // Distinct cues
+  function cueRun(setN){   // energetic ascending triad
+    ensureAudio();
+    beep(660,0,0.16,0.35,'triangle');
+    beep(880,0.16,0.16,0.35,'triangle');
+    beep(1180,0.32,0.30,0.4,'triangle');
+    say(`Run. Set ${setN}.`);
+  }
+  function cueWalk(){      // two calm descending tones
+    ensureAudio();
+    beep(520,0,0.22,0.32,'sine');
+    beep(392,0.24,0.36,0.32,'sine');
+    say("Walk.");
+  }
+  function cueTick(){ ensureAudio(); beep(700,0,0.08,0.22,'square'); }
+  function cueGo(){ ensureAudio(); beep(880,0,0.5,0.4,'triangle'); }
+  function cueFinish(){
+    ensureAudio();
+    beep(660,0,0.2,0.35,'triangle');
+    beep(880,0.2,0.2,0.35,'triangle');
+    beep(1046,0.4,0.2,0.35,'triangle');
+    beep(1318,0.6,0.5,0.4,'triangle');
+    say("Workout complete. Great job.");
+  }
+
+  // ---------- Wake lock ----------
+  async function requestWake(){
+    try{ if('wakeLock' in navigator){ wakeLock = await navigator.wakeLock.request('screen'); } }catch(e){}
+  }
+  function releaseWake(){ try{ if(wakeLock){ wakeLock.release(); wakeLock=null; } }catch(e){} }
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState==='visible' && running && !paused) requestWake();
+  });
+
+  // ---------- Live pace tracker (GPS) ----------
+  const pacePanel=$("pacePanel"), paceNowEl=$("paceNow"), paceStatusEl=$("paceStatus"),
+        pacePctEl=$("pacePct"), gaugeZone=$("gaugeZone"), gaugeMarker=$("gaugeMarker"),
+        gaugeTargetLbl=$("gaugeTargetLbl");
+  const GLO=70, GHI=130;               // gauge maps 70%–130% of target speed → 0–100% width
+  let geoWatch=null, lastFix=null, spdSamples=[], curSpeed=0, geoActive=false;
+  const paceToSec = p => { const [m,s]=p.split(':').map(Number); return m*60+(s||0); };
+  const targetSpeed = () => 1000/paceToSec(cfg.pace);   // m/s
+  const gclamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const posFor = pct => gclamp((pct-GLO)/(GHI-GLO)*100, 0, 100);
+  const mmss = s => { s=Math.max(0,Math.round(s)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+  function haversine(a,b,c,d){ const R=6371000, r=x=>x*Math.PI/180;
+    const dLa=r(c-a), dLo=r(d-b);
+    const x=Math.sin(dLa/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(dLo/2)**2;
+    return 2*R*Math.asin(Math.sqrt(x)); }
+
+  function setupGauge(){
+    gaugeTargetLbl.textContent=cfg.pace;
+    const l=posFor(92), rr=posFor(108);            // "in zone" = 92%–108% of target speed
+    gaugeZone.style.left=l+'%'; gaugeZone.style.width=(rr-l)+'%';
+  }
+  function startGeo(){
+    setupGauge();
+    resetPacePanel();
+    if(!('geolocation' in navigator)){ setStatus('No GPS','warn'); return; }
+    try{
+      geoWatch=navigator.geolocation.watchPosition(onFix, onGeoErr,
+        {enableHighAccuracy:true, maximumAge:1000, timeout:12000});
+    }catch(e){ setStatus('No GPS','warn'); }
+  }
+  function stopGeo(){
+    if(geoWatch!=null){ try{navigator.geolocation.clearWatch(geoWatch);}catch(e){} geoWatch=null; }
+    lastFix=null; spdSamples=[]; curSpeed=0; geoActive=false;
+  }
+  function setStatus(txt,cls){ paceStatusEl.textContent=txt; paceStatusEl.className='pace-status '+cls; }
+  function resetPacePanel(){
+    pacePanel.classList.add('idle'); paceNowEl.textContent='--:--'; pacePctEl.textContent='--';
+    setStatus('Locating…','info'); gaugeMarker.style.left='50%'; gaugeMarker.style.background='var(--muted)';
+  }
+  function onGeoErr(err){
+    setStatus(err && err.code===1 ? 'Location off' : 'No signal','warn');
+    pacePanel.classList.add('idle');
+  }
+  function onFix(pos){
+    geoActive=true;
+    const c=pos.coords; let sp=c.speed;
+    if(sp==null || isNaN(sp) || sp<0){                 // derive speed if the device doesn't report it
+      if(lastFix){
+        const d=haversine(lastFix.lat,lastFix.lon,c.latitude,c.longitude);
+        const dt=(pos.timestamp-lastFix.t)/1000;
+        sp = dt>0 ? d/dt : curSpeed;
+      } else sp=0;
+    }
+    lastFix={lat:c.latitude, lon:c.longitude, t:pos.timestamp};
+    spdSamples.push(sp); if(spdSamples.length>5) spdSamples.shift();
+    curSpeed=spdSamples.reduce((x,y)=>x+y,0)/spdSamples.length;   // smooth over last ~5 fixes
+    updatePaceUI();
+  }
+  function updatePaceUI(){
+    if(!geoActive) return;
+    const phase = running && plan[segIndex] ? plan[segIndex].phase : 'ready';
+    const moving = curSpeed>0.6;   // ~ faster than 27 min/km → treat as running/walking
+    if(!moving){
+      paceNowEl.textContent='--:--'; pacePctEl.textContent='--';
+      setStatus(phase==='walk'?'Recover':'Start moving','info');
+      pacePanel.classList.add('idle'); return;
+    }
+    const pct=Math.round(curSpeed/targetSpeed()*100);
+    paceNowEl.textContent=mmss(1000/curSpeed);
+    pacePctEl.textContent=pct;
+    gaugeMarker.style.left=posFor(pct)+'%';
+
+    if(phase!=='run'){          // only judge the zone during a run interval
+      pacePanel.classList.add('idle');
+      setStatus(phase==='walk'?'Recover':'—','info');
+      gaugeMarker.style.background='var(--walk)';
+      return;
+    }
+    pacePanel.classList.remove('idle');
+    let cls,txt,col;
+    if(pct>=92 && pct<=108){ cls='good'; txt='In the zone ✓'; col='var(--good)'; }
+    else if(pct<92){ if(pct>=85){cls='warn';txt='A touch slow';col='var(--warn)';} else {cls='bad';txt='Speed up';col='var(--bad)';} }
+    else { if(pct<=118){cls='warn';txt='A touch fast';col='var(--warn)';} else {cls='bad';txt='Ease off';col='var(--bad)';} }
+    setStatus(txt,cls); gaugeMarker.style.background=col;
+  }
+
+  // ---------- Colors per phase ----------
+  function applyPhaseTheme(phase){
+    body.classList.remove('phase-run','phase-walk');
+    let c;
+    if(phase==='run'){ body.classList.add('phase-run'); c=getCss('--run'); phaseLabel.textContent='RUN'; }
+    else if(phase==='walk'){ body.classList.add('phase-walk'); c=getCss('--walk'); phaseLabel.textContent='WALK'; }
+    else { c=getCss('--ready'); phaseLabel.textContent='GET READY'; }
+    ringProg.style.stroke=c;
+    phaseLabel.style.color=c;
+    // recolor dots to current phase accent
+    document.querySelectorAll('.dot.done,.dot.current').forEach(d=>{ d.style.background=c; });
+    paceHint.style.visibility = phase==='run' ? 'visible':'hidden';
+  }
+  const getCss = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+  // ---------- Run loop ----------
+  function startWorkout(){
+    buildPlan(); buildDots();
+    setTotal.textContent = cfg.sets;
+    segIndex = 0; running = true; paused = false;
+    setupView.classList.add('hidden');
+    doneView.classList.add('hidden');
+    activeView.classList.remove('hidden');
+    resetBtn.classList.remove('hidden');
+    mainBtn.textContent = 'Pause';
+    mainBtn.classList.add('paused');
+    ensureAudio(); requestWake(); startGeo();
+    beginSegment();
+    tick();
+  }
+
+  function beginSegment(){
+    const seg = plan[segIndex];
+    segStart = performance.now();
+    lastTickSecond = -1;
+    applyPhaseTheme(seg.phase);
+    if(seg.phase!=='ready'){
+      setNum.textContent = seg.set;
+      paintDots(seg.set);
+      applyPhaseTheme(seg.phase); // repaint dots with color
+    } else {
+      setNum.textContent = 1;
+    }
+    // fire the entry cue
+    if(seg.phase==='run') cueRun(seg.set);
+    else if(seg.phase==='walk') cueWalk();
+    // 'ready' handled by tick countdown
+    updatePaceUI(); // refresh zone judging for the new phase
+  }
+
+  function tick(){
+    if(!running) return;
+    const seg = plan[segIndex];
+    const now = performance.now();
+    const elapsed = paused ? (pausedAt - segStart)/1000 : (now - segStart)/1000;
+    const remain = seg.dur - elapsed;
+
+    // display
+    timeDisplay.textContent = seg.phase==='ready' ? Math.max(0,Math.ceil(remain)) : fmt(remain);
+    const frac = Math.min(1, Math.max(0, elapsed/seg.dur));
+    ringProg.style.strokeDashoffset = RING_LEN * frac; // ring depletes as the interval runs down
+
+    // per-second cues
+    const wholeRemain = Math.ceil(remain);
+    if(!paused && wholeRemain !== lastTickSecond){
+      lastTickSecond = wholeRemain;
+      if(seg.phase==='ready'){
+        if(wholeRemain>=1 && wholeRemain<=3) cueTick();
+      } else {
+        if(wholeRemain>=1 && wholeRemain<=3) cueTick(); // 3-2-1 into next
+      }
+    }
+
+    if(remain <= 0 && !paused){
+      advance();
+      return;
+    }
+    raf = requestAnimationFrame(tick);
+  }
+
+  function advance(){
+    if(plan[segIndex].phase==='ready'){ cueGo(); }
+    segIndex++;
+    if(segIndex >= plan.length){ finish(); return; }
+    beginSegment();
+    raf = requestAnimationFrame(tick);
+  }
+
+  function finish(){
+    running=false; cancelAnimationFrame(raf); releaseWake(); stopGeo();
+    cueFinish();
+    activeView.classList.add('hidden');
+    doneView.classList.remove('hidden');
+    body.classList.remove('phase-run','phase-walk');
+    mainBtn.textContent='Again';
+    mainBtn.classList.remove('paused');
+    $("doneSummary").textContent = `${cfg.sets} sets · ${fmtLoose(cfg.sets*(cfg.run+cfg.walk))} total. Log it and recover well.`;
+  }
+
+  function togglePause(){
+    if(paused){
+      // resume: shift segStart forward by paused duration
+      const delta = performance.now() - pausedAt;
+      segStart += delta;
+      paused=false;
+      mainBtn.textContent='Pause';
+      phaseLabel.style.opacity='1';
+      requestWake();
+      raf = requestAnimationFrame(tick);
+    } else {
+      paused=true; pausedAt=performance.now();
+      mainBtn.textContent='Resume';
+      phaseLabel.style.opacity='.5';
+      cancelAnimationFrame(raf);
+    }
+  }
+
+  function reset(){
+    running=false; paused=false; cancelAnimationFrame(raf); releaseWake(); stopGeo();
+    try{ speechSynthesis.cancel(); }catch(e){}
+    activeView.classList.add('hidden');
+    doneView.classList.add('hidden');
+    setupView.classList.remove('hidden');
+    body.classList.remove('phase-run','phase-walk');
+    resetBtn.classList.add('hidden');
+    mainBtn.textContent='Start';
+    mainBtn.classList.remove('paused');
+    refreshSetup();
+  }
+
+  // ---------- Buttons ----------
+  mainBtn.addEventListener('click',()=>{
+    unlockAudio(); // synchronous inside the tap — required for iOS Safari sound
+    if(!running){
+      startWorkout();
+    } else {
+      togglePause();
+    }
+  });
+  resetBtn.addEventListener('click', reset);
+
+  refreshSetup();
+})();
+</script>
+</body>
+</html>
