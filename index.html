@@ -15,6 +15,7 @@
   .wrap{width:100%;max-width:520px}
   h1{font-size:1.6rem;margin-bottom:4px}
   p.sub{color:#8b93ad;margin-bottom:28px}
+  .grid{display:flex;flex-direction:column;gap:14px}
   a.card{
     display:block;text-decoration:none;color:inherit;
     background:#151b30;border:1px solid #252e49;border-radius:16px;
@@ -29,10 +30,16 @@
   <div class="wrap">
     <h1>Idea Playground</h1>
     <p class="sub">A place for small experiments and apps.</p>
-    <a class="card" href="run-rehab/">
-      <h2>🏃 Rehab Run Trainer</h2>
-      <span>Run/walk interval trainer with live GPS pace zones.</span>
-    </a>
+    <div class="grid">
+      <a class="card" href="run-rehab/">
+        <h2>🏃 Rehab Run Trainer</h2>
+        <span>Run/walk interval trainer with live GPS pace zones.</span>
+      </a>
+      <a class="card" href="cards/">
+        <h2>🃏 Speed Draw</h2>
+        <span>Draw 20 poker cards against the clock — faster is better.</span>
+      </a>
+    </div>
   </div>
 </body>
 </html>

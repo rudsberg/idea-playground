@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b1020">
+<title>Speed Draw</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --panel:#151b30;
+    --text:#f4f6fb;
+    --muted:#8b93ad;
+    --line:#252e49;
+    --accent:#a78bfa;
+    --good:#22c55e;
+    --red:#e5484d;
+    --black:#1b2237;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(130% 90% at 50% -10%, #14213d 0%, var(--bg) 55%);
+    color:var(--text);
+    min-height:100dvh;
+    display:flex;flex-direction:column;align-items:center;
+    padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+    overflow:hidden;
+  }
+
+  header{text-align:center;padding:16px 10px 2px}
+  header h1{font-size:14px;font-weight:600;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+  header .sub{font-size:12px;color:var(--muted);opacity:.75;margin-top:4px}
+
+  main{
+    flex:1;width:100%;max-width:460px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+    padding:8px 0;
+  }
+
+  /* ---- Timer + progress ---- */
+  .timer{
+    font-variant-numeric:tabular-nums;font-weight:800;font-size:56px;line-height:1;
+    letter-spacing:1px;transition:color .3s ease;
+  }
+  .timer small{font-size:22px;color:var(--muted);font-weight:700;margin-left:2px}
+  .timer.done{color:var(--good)}
+  .progress{width:100%;max-width:320px}
+  .pbar{height:8px;border-radius:6px;background:var(--line);overflow:hidden}
+  .pfill{height:100%;width:0;background:var(--accent);border-radius:6px;transition:width .18s ease}
+  .plabel{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--muted);margin-top:7px}
+  .plabel b{color:var(--text)}
+
+  /* ---- Cards ---- */
+  .stage{display:flex;align-items:center;justify-content:center;gap:20px;min-height:196px}
+  .card{width:126px;aspect-ratio:5/7;border-radius:12px;position:relative;perspective:900px;flex:none}
+  .inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .38s cubic-bezier(.34,1.28,.5,1)}
+  .inner.flipped{transform:rotateY(180deg)}
+  .face{
+    position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+    border-radius:inherit;overflow:hidden;
+    box-shadow:0 10px 24px rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.15) inset;
+  }
+  .back{background:repeating-linear-gradient(45deg,#3a4bd6 0 8px,#2f3fb0 8px 16px);border:3px solid #eef1ff}
+  .back::after{content:"";position:absolute;inset:8px;border-radius:6px;border:2px solid rgba(255,255,255,.55)}
+  .front{
+    transform:rotateY(180deg);
+    background:linear-gradient(160deg,#fff 0%,#f3f5fb 100%);
+    color:var(--black);border:1px solid rgba(0,0,0,.12);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .front.red{color:var(--red)}
+  .corner{position:absolute;display:flex;flex-direction:column;align-items:center;line-height:.92;font-weight:800}
+  .corner .r{font-size:18px}
+  .corner .s{font-size:15px}
+  .corner.tl{top:7px;left:8px}
+  .corner.br{bottom:7px;right:8px;transform:rotate(180deg)}
+  .pip{font-size:58px;line-height:1}
+
+  /* deck stack */
+  .deck{position:relative;width:126px;aspect-ratio:5/7;flex:none;cursor:pointer;user-select:none}
+  .deck .layer{
+    position:absolute;inset:0;border-radius:12px;
+    background:repeating-linear-gradient(45deg,#3a4bd6 0 8px,#2f3fb0 8px 16px);
+    border:3px solid #eef1ff;box-shadow:0 8px 20px rgba(0,0,0,.4);
+  }
+  .deck .layer::after{content:"";position:absolute;inset:8px;border-radius:6px;border:2px solid rgba(255,255,255,.5)}
+  .deck .layer:nth-child(1){transform:translate(6px,6px);opacity:.5}
+  .deck .layer:nth-child(2){transform:translate(3px,3px);opacity:.75}
+  .deck.spent{cursor:default;opacity:.35}
+  .card.placeholder .ph{
+    position:absolute;inset:0;border-radius:12px;border:2px dashed var(--line);
+    display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:32px;
+  }
+
+  /* ---- Controls ---- */
+  .controls{display:flex;gap:12px;width:100%;max-width:400px}
+  button{
+    font-family:inherit;font-weight:800;border:none;cursor:pointer;color:var(--text);
+    border-radius:14px;transition:transform .08s ease,opacity .2s ease,background .2s ease;
+  }
+  button:active{transform:scale(.96)}
+  button:disabled{opacity:.4;cursor:default}
+  .btn-primary{flex:1;padding:20px;font-size:20px;background:var(--accent);color:#1a103a}
+  .btn-primary.done{background:var(--good);color:#04210f}
+  .btn-secondary{padding:20px 20px;font-size:14px;background:var(--panel);color:var(--text);border:1px solid var(--line)}
+
+  .best{font-size:13px;color:var(--muted);font-weight:700;text-align:center}
+  .best b{color:var(--text)}
+  .best .flag{color:var(--good)}
+  .hint{font-size:12px;color:var(--muted);text-align:center;line-height:1.5;padding:6px 12px 18px;opacity:.85}
+</style>
+</head>
+<body>
+<header>
+  <h1>Speed Draw</h1>
+  <div class="sub">Draw 20 cards as fast as you can</div>
+</header>
+
+<main>
+  <div class="timer" id="timer">0.00<small>s</small></div>
+
+  <div class="progress">
+    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+    <div class="plabel"><span><b id="drawnN">0</b> / 20 drawn</span><span id="bestInline"></span></div>
+  </div>
+
+  <div class="stage">
+    <div class="deck" id="deck" title="Draw">
+      <div class="layer"></div>
+      <div class="layer"></div>
+      <div class="layer"></div>
+    </div>
+    <div class="card placeholder" id="current"><div class="ph">♠</div></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-primary" id="drawBtn">Draw</button>
+    <button class="btn-secondary" id="restartBtn">Restart</button>
+  </div>
+
+  <div class="best" id="best">Best time: —</div>
+</main>
+
+<p class="hint">Tap the deck or hit <b>Draw</b> — the clock starts on your first card and stops at the 20th.</p>
+
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const SUITS=[{ch:"♠",red:false},{ch:"♥",red:true},{ch:"♦",red:true},{ch:"♣",red:false}];
+  const RANKS=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+  const GOAL=20;
+  const BEST_KEY="speedDrawBest";
+
+  const timerEl=$("timer"), pfill=$("pfill"), drawnN=$("drawnN"),
+        deckEl=$("deck"), currentEl=$("current"),
+        drawBtn=$("drawBtn"), restartBtn=$("restartBtn"),
+        bestEl=$("best"), bestInline=$("bestInline");
+
+  let deck=[], count=0, startT=0, endT=0, running=false, finished=false, raf=null;
+
+  function readBest(){ const v=parseFloat(localStorage.getItem(BEST_KEY)); return isNaN(v)?null:v; }
+  function writeBest(v){ try{ localStorage.setItem(BEST_KEY,String(v)); }catch(e){} }
+  const fmt = ms => (ms/1000).toFixed(2);
+
+  function freshDeck(){
+    const d=[];
+    for(const s of SUITS) for(const r of RANKS) d.push({rank:r,suit:s});
+    for(let i=d.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [d[i],d[j]]=[d[j],d[i]]; }
+    return d;
+  }
+
+  function faceHTML(card){
+    const s=card.suit, cls=s.red?"front red":"front";
+    const c=`<span class="r">${card.rank}</span><span class="s">${s.ch}</span>`;
+    return `<div class="face back"></div>
+      <div class="face ${cls}"><div class="corner tl">${c}</div><div class="pip">${s.ch}</div><div class="corner br">${c}</div></div>`;
+  }
+  function showCard(card){
+    currentEl.className="card";
+    currentEl.innerHTML=`<div class="inner">${faceHTML(card)}</div>`;
+    const inner=currentEl.firstElementChild;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>inner.classList.add("flipped")));
+  }
+
+  function showBest(){
+    const b=readBest();
+    bestEl.innerHTML = b==null ? "Best time: —" : `Best time: <b>${fmt(b*1000)}s</b>`;
+    bestInline.innerHTML = b==null ? "" : `best <b style="color:var(--text)">${fmt(b*1000)}s</b>`;
+  }
+
+  function loop(){
+    if(!running) return;
+    timerEl.innerHTML = fmt(performance.now()-startT)+'<small>s</small>';
+    raf=requestAnimationFrame(loop);
+  }
+
+  function draw(){
+    if(finished || !deck.length) return;
+    if(!running){ running=true; startT=performance.now(); loop(); }
+    showCard(deck.pop());
+    count++;
+    drawnN.textContent=count;
+    pfill.style.width=(count/GOAL*100)+"%";
+    if(count>=GOAL) finish();
+  }
+
+  function finish(){
+    running=false; finished=true;
+    endT=performance.now();
+    cancelAnimationFrame(raf);
+    const elapsed=(endT-startT)/1000;
+    timerEl.innerHTML=elapsed.toFixed(2)+'<small>s</small>';
+    timerEl.classList.add("done");
+    deckEl.classList.add("spent");
+    drawBtn.disabled=true;
+    drawBtn.textContent="Done!";
+    drawBtn.classList.add("done");
+
+    const prev=readBest();
+    if(prev==null || elapsed<prev){
+      writeBest(elapsed);
+      bestEl.innerHTML=`<span class="flag">★ New best — ${elapsed.toFixed(2)}s!</span>`;
+    }else{
+      bestEl.innerHTML=`Finished in <b>${elapsed.toFixed(2)}s</b> · best <b>${prev.toFixed(2)}s</b>`;
+    }
+    showBest_inlineOnly();
+  }
+  function showBest_inlineOnly(){
+    const b=readBest();
+    bestInline.innerHTML = b==null ? "" : `best <b style="color:var(--text)">${fmt(b*1000)}s</b>`;
+  }
+
+  function restart(){
+    cancelAnimationFrame(raf);
+    deck=freshDeck(); count=0; running=false; finished=false; startT=endT=0;
+    timerEl.className="timer"; timerEl.innerHTML='0.00<small>s</small>';
+    pfill.style.width="0"; drawnN.textContent="0";
+    deckEl.classList.remove("spent");
+    currentEl.className="card placeholder"; currentEl.innerHTML='<div class="ph">♠</div>';
+    drawBtn.disabled=false; drawBtn.textContent="Draw"; drawBtn.classList.remove("done");
+    showBest();
+  }
+
+  drawBtn.addEventListener("click", draw);
+  deckEl.addEventListener("click", draw);
+  restartBtn.addEventListener("click", restart);
+
+  restart();
+})();
+</script>
+</body>
+</html>
