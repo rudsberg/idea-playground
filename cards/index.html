@@ -25,45 +25,45 @@
     color:var(--text);
     min-height:100dvh;
     display:flex;flex-direction:column;align-items:center;
-    padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
-    overflow:hidden;
+    padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);
+    overflow-y:auto;
   }
 
-  header{text-align:center;padding:16px 10px 2px}
-  header h1{font-size:14px;font-weight:600;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
-  header .sub{font-size:12px;color:var(--muted);opacity:.75;margin-top:4px}
+  header{text-align:center;padding:14px 10px 2px}
+  header h1{font-size:18px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+  header .sub{font-size:14px;color:var(--muted);opacity:.8;margin-top:5px}
 
   main{
-    flex:1;width:100%;max-width:460px;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
-    padding:8px 0;
+    flex:1;width:100%;max-width:520px;
+    display:flex;flex-direction:column;align-items:center;
+    gap:16px;padding:10px 0 6px;
   }
 
   /* ---- Timer + progress ---- */
   .timer{
-    font-variant-numeric:tabular-nums;font-weight:800;font-size:56px;line-height:1;
-    letter-spacing:1px;transition:color .3s ease;
+    font-variant-numeric:tabular-nums;font-weight:800;font-size:clamp(58px,17vw,84px);line-height:1;
+    letter-spacing:1px;transition:color .3s ease;margin-top:4px;
   }
-  .timer small{font-size:22px;color:var(--muted);font-weight:700;margin-left:2px}
+  .timer small{font-size:.36em;color:var(--muted);font-weight:700;margin-left:3px}
   .timer.done{color:var(--good)}
-  .progress{width:100%;max-width:320px}
-  .pbar{height:8px;border-radius:6px;background:var(--line);overflow:hidden}
-  .pfill{height:100%;width:0;background:var(--accent);border-radius:6px;transition:width .18s ease}
-  .plabel{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--muted);margin-top:7px}
+  .progress{width:100%;max-width:420px}
+  .pbar{height:12px;border-radius:8px;background:var(--line);overflow:hidden}
+  .pfill{height:100%;width:0;background:var(--accent);border-radius:8px;transition:width .18s ease}
+  .plabel{display:flex;justify-content:space-between;font-size:16px;font-weight:700;color:var(--muted);margin-top:10px}
   .plabel b{color:var(--text)}
 
   /* ---- Cards ---- */
-  .stage{display:flex;align-items:center;justify-content:center;gap:20px;min-height:196px}
-  .card{width:126px;aspect-ratio:5/7;border-radius:12px;position:relative;perspective:900px;flex:none}
+  .stage{display:flex;align-items:center;justify-content:center;gap:22px;min-height:210px;cursor:pointer;user-select:none}
+  .card{width:150px;aspect-ratio:5/7;border-radius:14px;position:relative;perspective:1000px;flex:none}
   .inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .38s cubic-bezier(.34,1.28,.5,1)}
   .inner.flipped{transform:rotateY(180deg)}
   .face{
     position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
     border-radius:inherit;overflow:hidden;
-    box-shadow:0 10px 24px rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.15) inset;
+    box-shadow:0 12px 28px rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.15) inset;
   }
-  .back{background:repeating-linear-gradient(45deg,#3a4bd6 0 8px,#2f3fb0 8px 16px);border:3px solid #eef1ff}
-  .back::after{content:"";position:absolute;inset:8px;border-radius:6px;border:2px solid rgba(255,255,255,.55)}
+  .back{background:repeating-linear-gradient(45deg,#3a4bd6 0 9px,#2f3fb0 9px 18px);border:3px solid #eef1ff}
+  .back::after{content:"";position:absolute;inset:9px;border-radius:7px;border:2px solid rgba(255,255,255,.55)}
   .front{
     transform:rotateY(180deg);
     background:linear-gradient(160deg,#fff 0%,#f3f5fb 100%);
@@ -72,50 +72,63 @@
   }
   .front.red{color:var(--red)}
   .corner{position:absolute;display:flex;flex-direction:column;align-items:center;line-height:.92;font-weight:800}
-  .corner .r{font-size:18px}
-  .corner .s{font-size:15px}
-  .corner.tl{top:7px;left:8px}
-  .corner.br{bottom:7px;right:8px;transform:rotate(180deg)}
-  .pip{font-size:58px;line-height:1}
+  .corner .r{font-size:22px}
+  .corner .s{font-size:18px}
+  .corner.tl{top:9px;left:10px}
+  .corner.br{bottom:9px;right:10px;transform:rotate(180deg)}
+  .pip{font-size:70px;line-height:1}
 
   /* deck stack */
-  .deck{position:relative;width:126px;aspect-ratio:5/7;flex:none;cursor:pointer;user-select:none}
+  .deck{position:relative;width:150px;aspect-ratio:5/7;flex:none}
   .deck .layer{
-    position:absolute;inset:0;border-radius:12px;
-    background:repeating-linear-gradient(45deg,#3a4bd6 0 8px,#2f3fb0 8px 16px);
-    border:3px solid #eef1ff;box-shadow:0 8px 20px rgba(0,0,0,.4);
+    position:absolute;inset:0;border-radius:14px;
+    background:repeating-linear-gradient(45deg,#3a4bd6 0 9px,#2f3fb0 9px 18px);
+    border:3px solid #eef1ff;box-shadow:0 10px 22px rgba(0,0,0,.4);
   }
-  .deck .layer::after{content:"";position:absolute;inset:8px;border-radius:6px;border:2px solid rgba(255,255,255,.5)}
-  .deck .layer:nth-child(1){transform:translate(6px,6px);opacity:.5}
-  .deck .layer:nth-child(2){transform:translate(3px,3px);opacity:.75}
-  .deck.spent{cursor:default;opacity:.35}
+  .deck .layer::after{content:"";position:absolute;inset:9px;border-radius:7px;border:2px solid rgba(255,255,255,.5)}
+  .deck .layer:nth-child(1){transform:translate(7px,7px);opacity:.5}
+  .deck .layer:nth-child(2){transform:translate(4px,4px);opacity:.75}
+  .stage.spent{cursor:default}
+  .stage.spent .deck{opacity:.35}
   .card.placeholder .ph{
-    position:absolute;inset:0;border-radius:12px;border:2px dashed var(--line);
-    display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:32px;
+    position:absolute;inset:0;border-radius:14px;border:2px dashed var(--line);
+    display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:38px;
   }
 
-  /* ---- Controls ---- */
-  .controls{display:flex;gap:12px;width:100%;max-width:400px}
+  /* ---- Big draw button ---- */
   button{
     font-family:inherit;font-weight:800;border:none;cursor:pointer;color:var(--text);
-    border-radius:14px;transition:transform .08s ease,opacity .2s ease,background .2s ease;
+    border-radius:18px;transition:transform .08s ease,opacity .2s ease,background .2s ease;
   }
-  button:active{transform:scale(.96)}
+  button:active{transform:scale(.97)}
   button:disabled{opacity:.4;cursor:default}
-  .btn-primary{flex:1;padding:20px;font-size:20px;background:var(--accent);color:#1a103a}
-  .btn-primary.done{background:var(--good);color:#04210f}
-  .btn-secondary{padding:20px 20px;font-size:14px;background:var(--panel);color:var(--text);border:1px solid var(--line)}
+  .btn-draw{
+    width:100%;max-width:480px;flex:1 0 auto;min-height:26vh;
+    font-size:clamp(30px,8vw,40px);letter-spacing:1px;
+    background:var(--accent);color:#1a103a;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    box-shadow:0 10px 28px rgba(167,139,250,.28);
+  }
+  .btn-draw small{font-size:.42em;font-weight:700;opacity:.7;letter-spacing:2px;text-transform:uppercase}
+  .btn-draw.done{background:var(--good);color:#04210f;box-shadow:0 10px 28px rgba(34,197,94,.28)}
 
-  .best{font-size:13px;color:var(--muted);font-weight:700;text-align:center}
+  /* ---- Secondary controls ---- */
+  .controls{display:flex;gap:12px;width:100%;max-width:480px}
+  .btn-secondary{
+    flex:1;min-height:62px;padding:14px;font-size:17px;
+    background:var(--panel);color:var(--text);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+
+  .best{font-size:16px;color:var(--muted);font-weight:700;text-align:center;min-height:22px}
   .best b{color:var(--text)}
   .best .flag{color:var(--good)}
-  .hint{font-size:12px;color:var(--muted);text-align:center;line-height:1.5;padding:6px 12px 18px;opacity:.85}
 </style>
 </head>
 <body>
 <header>
   <h1>Speed Draw</h1>
-  <div class="sub">Draw 20 cards as fast as you can</div>
+  <div class="sub">Draw 20 cards — fast as you can</div>
 </header>
 
 <main>
@@ -126,8 +139,8 @@
     <div class="plabel"><span><b id="drawnN">0</b> / 20 drawn</span><span id="bestInline"></span></div>
   </div>
 
-  <div class="stage">
-    <div class="deck" id="deck" title="Draw">
+  <div class="stage" id="stage" title="Tap to draw">
+    <div class="deck" id="deck">
       <div class="layer"></div>
       <div class="layer"></div>
       <div class="layer"></div>
@@ -135,15 +148,15 @@
     <div class="card placeholder" id="current"><div class="ph">♠</div></div>
   </div>
 
+  <button class="btn-draw" id="drawBtn">Draw<small>tap to flip next</small></button>
+
   <div class="controls">
-    <button class="btn-primary" id="drawBtn">Draw</button>
-    <button class="btn-secondary" id="restartBtn">Restart</button>
+    <button class="btn-secondary" id="restartBtn">↻ Restart</button>
+    <button class="btn-secondary" id="clearBtn">🗑 Clear best</button>
   </div>
 
   <div class="best" id="best">Best time: —</div>
 </main>
-
-<p class="hint">Tap the deck or hit <b>Draw</b> — the clock starts on your first card and stops at the 20th.</p>
 
 <script>
 (() => {
@@ -155,8 +168,8 @@
   const BEST_KEY="speedDrawBest";
 
   const timerEl=$("timer"), pfill=$("pfill"), drawnN=$("drawnN"),
-        deckEl=$("deck"), currentEl=$("current"),
-        drawBtn=$("drawBtn"), restartBtn=$("restartBtn"),
+        stageEl=$("stage"), currentEl=$("current"),
+        drawBtn=$("drawBtn"), restartBtn=$("restartBtn"), clearBtn=$("clearBtn"),
         bestEl=$("best"), bestInline=$("bestInline");
 
   let deck=[], count=0, startT=0, endT=0, running=false, finished=false, raf=null;
@@ -185,10 +198,16 @@
     requestAnimationFrame(()=>requestAnimationFrame(()=>inner.classList.add("flipped")));
   }
 
+  function updateClearBtn(){ clearBtn.disabled = readBest()==null; }
+  function bestInlineHTML(){
+    const b=readBest();
+    return b==null ? "" : `best <b style="color:var(--text)">${fmt(b*1000)}s</b>`;
+  }
   function showBest(){
     const b=readBest();
     bestEl.innerHTML = b==null ? "Best time: —" : `Best time: <b>${fmt(b*1000)}s</b>`;
-    bestInline.innerHTML = b==null ? "" : `best <b style="color:var(--text)">${fmt(b*1000)}s</b>`;
+    bestInline.innerHTML = bestInlineHTML();
+    updateClearBtn();
   }
 
   function loop(){
@@ -214,9 +233,9 @@
     const elapsed=(endT-startT)/1000;
     timerEl.innerHTML=elapsed.toFixed(2)+'<small>s</small>';
     timerEl.classList.add("done");
-    deckEl.classList.add("spent");
+    stageEl.classList.add("spent");
     drawBtn.disabled=true;
-    drawBtn.textContent="Done!";
+    drawBtn.innerHTML='Done!<small>tap restart to go again</small>';
     drawBtn.classList.add("done");
 
     const prev=readBest();
@@ -226,11 +245,8 @@
     }else{
       bestEl.innerHTML=`Finished in <b>${elapsed.toFixed(2)}s</b> · best <b>${prev.toFixed(2)}s</b>`;
     }
-    showBest_inlineOnly();
-  }
-  function showBest_inlineOnly(){
-    const b=readBest();
-    bestInline.innerHTML = b==null ? "" : `best <b style="color:var(--text)">${fmt(b*1000)}s</b>`;
+    bestInline.innerHTML = bestInlineHTML();
+    updateClearBtn();
   }
 
   function restart(){
@@ -238,15 +254,24 @@
     deck=freshDeck(); count=0; running=false; finished=false; startT=endT=0;
     timerEl.className="timer"; timerEl.innerHTML='0.00<small>s</small>';
     pfill.style.width="0"; drawnN.textContent="0";
-    deckEl.classList.remove("spent");
+    stageEl.classList.remove("spent");
     currentEl.className="card placeholder"; currentEl.innerHTML='<div class="ph">♠</div>';
-    drawBtn.disabled=false; drawBtn.textContent="Draw"; drawBtn.classList.remove("done");
+    drawBtn.disabled=false; drawBtn.innerHTML='Draw<small>tap to flip next</small>'; drawBtn.classList.remove("done");
     showBest();
   }
 
+  function clearBest(){
+    if(readBest()==null) return;
+    if(confirm("Clear your best time?")){
+      try{ localStorage.removeItem(BEST_KEY); }catch(e){}
+      showBest();
+    }
+  }
+
   drawBtn.addEventListener("click", draw);
-  deckEl.addEventListener("click", draw);
+  stageEl.addEventListener("click", draw);   // whole card area is a draw target too
   restartBtn.addEventListener("click", restart);
+  clearBtn.addEventListener("click", clearBest);
 
   restart();
 })();
