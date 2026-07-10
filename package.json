@@ -1,0 +1,11 @@
+{
+  "name": "idea-playground",
+  "private": true,
+  "description": "Small self-contained web experiments, served via GitHub Pages. Tests drive the real apps in Chromium.",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}
