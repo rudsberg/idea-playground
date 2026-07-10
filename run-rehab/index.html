@@ -201,7 +201,7 @@
         </div>
       </div>
     </div>
-    <p class="hint" style="margin-top:16px">Total <b id="totalTime">30:00</b> · Voice &amp; sound cues fire at every switch. 🔊 Turn your volume up. 📍 Allow location for live pace.</p>
+    <p class="hint" style="margin-top:16px">Total <b id="totalTime">30:00</b> · Voice &amp; sound cues fire at every switch. 🔊 Turn your volume up. 📍 Allow location for pace — it shows after ~10 s of each run.</p>
   </section>
 
   <!-- ACTIVE -->
@@ -223,7 +223,7 @@
 
     <div class="pace-panel idle" id="pacePanel">
       <div class="pace-top">
-        <div class="pace-now"><span id="paceNow">--:--</span><small>/km now</small></div>
+        <div class="pace-now"><span id="paceNow">--:--</span><small>set avg /km</small></div>
         <div class="pace-status info" id="paceStatus">Locating…</div>
         <div class="pace-pct"><span id="pacePct">--</span><small>% of target</small></div>
       </div>
@@ -234,7 +234,7 @@
         <div class="gauge-marker" id="gaugeMarker"></div>
         <div class="gauge-labels"><span>slower</span><span><b id="gaugeTargetLbl">6:30</b></span><span>faster</span></div>
       </div>
-      <div class="pace-avg">avg this set <b id="paceAvg">--:--</b> /km</div>
+      <div class="pace-avg">session avg <b id="paceSession">--:--</b> /km</div>
     </div>
   </section>
 
@@ -401,26 +401,32 @@
   });
 
   // ---------- Live pace tracker (GPS) ----------
-  // Speed is derived from a rolling 10s distance/time window (like Garmin/Strava "rolling
-  // pace"), not per-fix instantaneous differencing — summing distance over a wider, more
-  // reliable time base lets position noise cancel instead of dominating the reading, which
-  // is essential at rehab pace where per-fix movement is only ~1-2m.
+  // Pace is measured over consecutive NON-overlapping ~10s "legs" (anchor fix → the first
+  // fix ≥10s later) summed into distance/time totals for the current set and the session.
+  // Why legs: per-fix distance summation inflates hugely at slow paces (each 1s segment is
+  // mostly jitter), while overlapping windows produce correlated samples that let one bad
+  // excursion bias a whole set. Summed legs cancel interior noise, so accuracy *improves*
+  // as a set progresses. Frozen-GPS dropouts (position repeats while you're still moving)
+  // are rejected fix-by-fix and either bridged across or discarded leg-by-leg — they never
+  // read as "suddenly running 9:00/km". Nothing shows until a set's first full leg exists.
   const pacePanel=$("pacePanel"), paceNowEl=$("paceNow"), paceStatusEl=$("paceStatus"),
-        pacePctEl=$("pacePct"), paceAvgEl=$("paceAvg"), gaugeZone=$("gaugeZone"), gaugeMarker=$("gaugeMarker"),
-        gaugeTargetLbl=$("gaugeTargetLbl");
+        pacePctEl=$("pacePct"), paceSessionEl=$("paceSession"), gaugeZone=$("gaugeZone"),
+        gaugeMarker=$("gaugeMarker"), gaugeTargetLbl=$("gaugeTargetLbl");
   const GLO=70, GHI=130;               // gauge maps 70%–130% of target speed → 0–100% width
-  const MAX_ACC=25;      // m — ignore GPS fixes weaker than this
-  const MAX_SPEED=8;     // m/s (~2:05/km) — reject implausible GPS spikes
-  const WINDOW_SEC=10;   // rolling window for the displayed pace
-  const MIN_WINDOW_DT=3; // need at least this much history before trusting the window
-  const EMA_TAU=5;       // light smoothing on top of the window, to stop it "stepping"
+  const MAX_ACC=25;                    // m — ignore GPS fixes reporting worse accuracy
+  const MAX_SPEED=8;                   // m/s (~2:05/km) — faster between fixes is a GPS spike
+  const MIN_RUN_SPEED=1000/840;        // ~14:00/km — a slower leg during a run means lost signal, not running
+  const LEG_SEC=10;                    // leg length; doubles as the per-set warm-up before pace shows
+  const LEG_MAX_SPAN=25;               // s — legs bridged across longer signal gaps are discarded
+  const FROZEN_EPS=0.5;                // m — consecutive fixes closer than this = receiver frozen
+  const STALE_AFTER=5;                 // s without an accepted moving fix during a run → "Weak GPS"
 
   let geoWatch=null, geoActive=false;
-  let fixHistory=[], lastAcceptedFix=null;          // accepted fixes within the rolling window
-  let curSpeed=0, emaSpeed=0, emaInit=false, lastEmaT=null;
-  let integAnchorT=null;                            // last fix time counted toward run distance
-  let runIntervalDist=0, runIntervalTime=0;         // this run interval (resets each "run" segment)
-  let sessionRunDist=0, sessionRunTime=0;           // whole workout, run segments only
+  let lastRawFix=null;                 // previous fix as delivered (for frozen detection)
+  let lastAcceptedFix=null;            // previous fix that passed all gates
+  let legAnchor=null, frozenCount=0, lastMoveWall=0;
+  let setDist=0, setTime=0;            // accepted legs, current (or just-finished) run set
+  let sesDist=0, sesTime=0;            // accepted legs, all run sets this session
 
   const targetSpeed = () => 1000/cfg.paceSec;   // m/s
   const gclamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -430,10 +436,6 @@
     const dLa=r(c-a), dLo=r(d-b);
     const x=Math.sin(dLa/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(dLo/2)**2;
     return 2*R*Math.asin(Math.sqrt(x)); }
-  function paceFromDistTime(d,t){                   // distance in m, time in s -> "m:ss" or null
-    if(t<3 || d<=0) return null;
-    return mmss(1000/(d/t));
-  }
 
   function setupGauge(){
     gaugeTargetLbl.textContent=paceLabel();
@@ -451,13 +453,13 @@
   }
   function stopGeo(){
     if(geoWatch!=null){ try{navigator.geolocation.clearWatch(geoWatch);}catch(e){} geoWatch=null; }
-    fixHistory=[]; lastAcceptedFix=null; curSpeed=0; emaSpeed=0; emaInit=false; lastEmaT=null;
-    integAnchorT=null; geoActive=false;
+    resetTracking(); geoActive=false;   // set/session totals survive for the finish summary
   }
+  function resetTracking(){ lastRawFix=null; lastAcceptedFix=null; legAnchor=null; frozenCount=0; }
   function setStatus(txt,cls){ paceStatusEl.textContent=txt; paceStatusEl.className='pace-status '+cls; }
   function resetPacePanel(){
     pacePanel.classList.add('idle'); paceNowEl.textContent='--:--'; pacePctEl.textContent='--';
-    paceAvgEl.textContent='--:--';
+    paceSessionEl.textContent='--:--';
     setStatus('Locating…','info'); gaugeMarker.style.left='50%'; gaugeMarker.style.background='var(--muted)';
   }
   function onGeoErr(err){
@@ -465,85 +467,112 @@
     pacePanel.classList.add('idle');
   }
 
-  // Accumulate distance covered while actually in a "run" segment (not walk/ready/paused),
-  // using the same smoothed speed shown on screen — so live and session averages agree
-  // with what the runner sees, and pauses/segment switches never inject a bogus jump.
-  function integrateRunDistance(t){
+  function inRunSeg(){
     const seg = running && plan[segIndex] ? plan[segIndex] : null;
-    const active = running && !paused && seg && seg.phase==='run';
-    if(!active){ integAnchorT=null; return; }
-    if(integAnchorT==null){ integAnchorT=t; return; }
-    const dt=t-integAnchorT;
-    if(dt>0 && dt<5){
-      const d=curSpeed*dt;
-      runIntervalDist+=d; runIntervalTime+=dt;
-      sessionRunDist+=d; sessionRunTime+=dt;
+    return !!(seg && seg.phase==='run' && !paused);
+  }
+  function acceptLeg(d, span){
+    const spd=d/span;
+    if(span<=LEG_MAX_SPAN && spd>=MIN_RUN_SPEED && spd<=MAX_SPEED){
+      setDist+=d; setTime+=span; sesDist+=d; sesTime+=span;
     }
-    integAnchorT=t;
+  }
+  // Count the in-progress leg's tail when a run interval ends, so its last seconds aren't lost.
+  function closeTailLeg(){
+    if(legAnchor && lastAcceptedFix && lastAcceptedFix.t-legAnchor.t>=5){
+      acceptLeg(haversine(legAnchor.lat,legAnchor.lon,lastAcceptedFix.lat,lastAcceptedFix.lon),
+                lastAcceptedFix.t-legAnchor.t);
+    }
+    legAnchor=null;
   }
 
   function onFix(pos){
     const c=pos.coords, t=pos.timestamp/1000;   // t in seconds
-    if(c.accuracy!=null && c.accuracy>MAX_ACC){
-      if(!fixHistory.length) setStatus('Weak GPS','warn');
-      return;                                    // drop low-quality fixes outright
+    geoActive=true;
+    if(paused) return;                          // paused fixes must not enter measurements
+    if(c.accuracy!=null && c.accuracy>MAX_ACC){ updatePaceUI(); return; }
+    if(lastRawFix && inRunSeg()){
+      const dRaw=haversine(lastRawFix.lat,lastRawFix.lon,c.latitude,c.longitude);
+      const dtRaw=t-lastRawFix.t;
+      if(dRaw<FROZEN_EPS && dtRaw>0 && dtRaw<3){   // position repeating while running = frozen receiver
+        frozenCount++;
+        lastRawFix={lat:c.latitude, lon:c.longitude, t};
+        if(frozenCount>=3 && legAnchor && t-legAnchor.t>LEG_MAX_SPAN) legAnchor=null; // bridge is hopeless
+        updatePaceUI(); return;                    // frozen fixes never enter measurements
+      }
     }
+    lastRawFix={lat:c.latitude, lon:c.longitude, t};
     if(lastAcceptedFix){
       const d=haversine(lastAcceptedFix.lat,lastAcceptedFix.lon,c.latitude,c.longitude);
       const dt=t-lastAcceptedFix.t;
-      if(dt<=0 || d/dt>MAX_SPEED) return;         // implausible jump → GPS spike, drop it
+      if(dt<=0 || d/dt>MAX_SPEED) return;          // spike / out-of-order → drop
     }
+    frozenCount=0;
     lastAcceptedFix={lat:c.latitude, lon:c.longitude, t};
-    fixHistory.push(lastAcceptedFix);
-    const cutoff=t-WINDOW_SEC-2;
-    while(fixHistory.length>1 && fixHistory[0].t<cutoff) fixHistory.shift();
-
-    geoActive=true;
-    const anchor=fixHistory[0];
-    const windowDt=t-anchor.t;
-    if(windowDt>=MIN_WINDOW_DT){
-      const windowDist=haversine(anchor.lat,anchor.lon,c.latitude,c.longitude);
-      const windowSpeed=windowDist/windowDt;
-      if(!emaInit){ emaSpeed=windowSpeed; emaInit=true; lastEmaT=t; }
-      else{
-        const dt=Math.max(0.1, t-lastEmaT);
-        const a=1-Math.exp(-dt/EMA_TAU);
-        emaSpeed+=a*(windowSpeed-emaSpeed);
-        lastEmaT=t;
+    if(inRunSeg()){
+      lastMoveWall=performance.now();
+      if(!legAnchor) legAnchor=lastAcceptedFix;
+      else if(t-legAnchor.t>=LEG_SEC){
+        acceptLeg(haversine(legAnchor.lat,legAnchor.lon,c.latitude,c.longitude), t-legAnchor.t);
+        legAnchor=lastAcceptedFix;                 // next leg starts here whether accepted or not
       }
-      curSpeed=emaSpeed;
-      integrateRunDistance(t);
     }
     updatePaceUI();
   }
+
+  // Average speed including the in-progress leg (once it has enough span to mean something).
+  function partialLeg(){
+    if(!(inRunSeg() && legAnchor && lastAcceptedFix && lastAcceptedFix.t>legAnchor.t)) return null;
+    const span=lastAcceptedFix.t-legAnchor.t;
+    if(span<4) return null;
+    const d=haversine(legAnchor.lat,legAnchor.lon,lastAcceptedFix.lat,lastAcceptedFix.lon);
+    const s=d/span;
+    return (s>=MIN_RUN_SPEED && s<=MAX_SPEED) ? {d, span} : null;
+  }
+  function avgWith(baseD, baseT){
+    const p=partialLeg();
+    const d=baseD+(p?p.d:0), tt=baseT+(p?p.span:0);
+    return tt>0 ? d/tt : null;
+  }
+
   function updatePaceUI(){
-    if(!geoActive) return;
     const phase = running && plan[segIndex] ? plan[segIndex].phase : 'ready';
-    const moving = curSpeed>0.6;   // ~ faster than 27 min/km → treat as running/walking
-    if(!moving){
-      paceNowEl.textContent='--:--'; pacePctEl.textContent='--';
-      setStatus(phase==='walk'?'Recover':'Start moving','info');
-      pacePanel.classList.add('idle');
-    } else {
-      const pct=Math.round(curSpeed/targetSpeed()*100);
-      paceNowEl.textContent=mmss(1000/curSpeed);
+    const setSpd = setTime>0 ? avgWith(setDist,setTime) : null;   // shown only after the set's first full leg
+    const sesSpd = sesTime>0 ? avgWith(sesDist,sesTime) : null;
+    paceSessionEl.textContent = sesSpd ? mmss(1000/sesSpd) : '--:--';
+
+    if(setSpd){
+      const pct=Math.round(setSpd/targetSpeed()*100);
+      paceNowEl.textContent=mmss(1000/setSpd);
       pacePctEl.textContent=pct;
       gaugeMarker.style.left=posFor(pct)+'%';
-
-      if(phase!=='run'){          // only judge the zone during a run interval
-        pacePanel.classList.add('idle');
-        setStatus(phase==='walk'?'Recover':'—','info');
-        gaugeMarker.style.background='var(--walk)';
-      } else {
-        pacePanel.classList.remove('idle');
-        let cls,txt,col;
-        if(pct>=92 && pct<=108){ cls='good'; txt='In the zone ✓'; col='var(--good)'; }
-        else if(pct<92){ if(pct>=85){cls='warn';txt='A touch slow';col='var(--warn)';} else {cls='bad';txt='Speed up';col='var(--bad)';} }
-        else { if(pct<=118){cls='warn';txt='A touch fast';col='var(--warn)';} else {cls='bad';txt='Ease off';col='var(--bad)';} }
-        setStatus(txt,cls); gaugeMarker.style.background=col;
-      }
+    } else {
+      paceNowEl.textContent='--:--'; pacePctEl.textContent='--';
     }
-    paceAvgEl.textContent = paceFromDistTime(runIntervalDist, runIntervalTime) || '--:--';
+
+    if(phase!=='run'){
+      // walk/ready: the finished set's average stays visible as a recap, but isn't judged
+      pacePanel.classList.add('idle');
+      setStatus(phase==='walk' ? 'Recover' : (geoActive ? 'Ready' : 'Locating…'), 'info');
+      if(setSpd) gaugeMarker.style.background='var(--walk)';
+      return;
+    }
+    if(!setSpd){
+      pacePanel.classList.add('idle');
+      setStatus(geoActive ? 'Measuring…' : 'Locating…', 'info');
+      return;
+    }
+    pacePanel.classList.remove('idle');
+    if((performance.now()-lastMoveWall)/1000 > STALE_AFTER){
+      setStatus('Weak GPS','warn'); gaugeMarker.style.background='var(--warn)';
+      return;                                    // hold the last good average, don't judge it
+    }
+    const pct=Math.round(setSpd/targetSpeed()*100);
+    let cls,txt,col;
+    if(pct>=92 && pct<=108){ cls='good'; txt='In the zone ✓'; col='var(--good)'; }
+    else if(pct<92){ if(pct>=85){cls='warn';txt='A touch slow';col='var(--warn)';} else {cls='bad';txt='Speed up';col='var(--bad)';} }
+    else { if(pct<=118){cls='warn';txt='A touch fast';col='var(--warn)';} else {cls='bad';txt='Ease off';col='var(--bad)';} }
+    setStatus(txt,cls); gaugeMarker.style.background=col;
   }
 
   // ---------- Colors per phase ----------
@@ -566,8 +595,7 @@
     buildPlan(); buildDots();
     setTotal.textContent = cfg.sets;
     segIndex = 0; running = true; paused = false;
-    sessionRunDist = 0; sessionRunTime = 0;
-    runIntervalDist = 0; runIntervalTime = 0;
+    setDist=0; setTime=0; sesDist=0; sesTime=0; resetTracking();
     setupView.classList.add('hidden');
     doneView.classList.add('hidden');
     activeView.classList.remove('hidden');
@@ -584,7 +612,8 @@
     segStart = performance.now();
     lastTickSecond = -1;
     applyPhaseTheme(seg.phase);
-    if(seg.phase==='run'){ runIntervalDist=0; runIntervalTime=0; }
+    if(seg.phase==='run'){ setDist=0; setTime=0; legAnchor=null; frozenCount=0; }  // fresh set — zero walk data
+    else if(plan[segIndex-1] && plan[segIndex-1].phase==='run'){ closeTailLeg(); } // count the run's last seconds
     if(seg.phase!=='ready'){
       setNum.textContent = seg.set;
       paintDots(seg.set);
@@ -615,6 +644,7 @@
     const wholeRemain = Math.ceil(remain);
     if(!paused && wholeRemain !== lastTickSecond){
       lastTickSecond = wholeRemain;
+      updatePaceUI();   // refresh staleness ("Weak GPS") even when no fixes arrive
       if(seg.phase==='ready'){
         if(wholeRemain>=1 && wholeRemain<=3) cueTick();
       } else {
@@ -646,9 +676,9 @@
     mainBtn.textContent='Again';
     mainBtn.classList.remove('paused');
     const totalStr = fmtLoose(cfg.sets*(cfg.run+cfg.walk));
-    const avg = paceFromDistTime(sessionRunDist, sessionRunTime);
-    $("doneSummary").textContent = avg
-      ? `${cfg.sets} sets · ${totalStr} total. Avg run pace ${avg}/km over ${fmt(sessionRunTime)} running (${(sessionRunDist/1000).toFixed(2)} km).`
+    const ses = sesTime>0 ? sesDist/sesTime : null;
+    $("doneSummary").textContent = ses
+      ? `${cfg.sets} sets · ${totalStr} total. Session avg run pace ${mmss(1000/ses)}/km — ${(sesDist/1000).toFixed(2)} km measured over ${fmt(sesTime)} of running.`
       : `${cfg.sets} sets · ${totalStr} total. Log it and recover well.`;
   }
 
@@ -658,6 +688,7 @@
       const delta = performance.now() - pausedAt;
       segStart += delta;
       paused=false;
+      resetTracking();   // pre-pause fixes are stale — measurements restart from fresh ones
       mainBtn.textContent='Pause';
       phaseLabel.style.opacity='1';
       requestWake();
