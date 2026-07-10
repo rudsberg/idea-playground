@@ -150,6 +150,9 @@
     font-size:10px;color:var(--muted);font-weight:600}
   .gauge-labels b{color:var(--text)}
 
+  .pace-avg{font-size:12px;color:var(--muted);font-weight:600;text-align:center}
+  .pace-avg b{color:var(--text)}
+
   /* Complete state */
   .done-emoji{font-size:64px;margin-bottom:4px}
 </style>
@@ -169,7 +172,7 @@
         <label>Run</label>
         <div class="stepper">
           <button data-step="run" data-d="-15">−</button>
-          <div class="val"><span id="runVal">1:00</span><small>at 6:30 /km</small></div>
+          <div class="val"><span id="runVal">1:00</span><small id="runPaceLbl">at 6:30 /km</small></div>
           <button data-step="run" data-d="15">+</button>
         </div>
       </div>
@@ -187,6 +190,14 @@
           <button data-step="sets" data-d="-1">−</button>
           <div class="val"><span id="setsVal">10</span><small>rounds</small></div>
           <button data-step="sets" data-d="1">+</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Tempo</label>
+        <div class="stepper">
+          <button data-step="pace" data-d="-5">−</button>
+          <div class="val"><span id="paceVal">6:30</span><small>min / km</small></div>
+          <button data-step="pace" data-d="5">+</button>
         </div>
       </div>
     </div>
@@ -223,6 +234,7 @@
         <div class="gauge-marker" id="gaugeMarker"></div>
         <div class="gauge-labels"><span>slower</span><span><b id="gaugeTargetLbl">6:30</b></span><span>faster</span></div>
       </div>
+      <div class="pace-avg">avg this set <b id="paceAvg">--:--</b> /km</div>
     </div>
   </section>
 
@@ -244,7 +256,7 @@
   "use strict";
 
   // ---------- Config ----------
-  const cfg = { run: 60, walk: 120, sets: 10, pace: "6:30" };
+  const cfg = { run: 60, walk: 120, sets: 10, paceSec: 390 };  // paceSec = target min/km, in seconds
   const READY = 3; // countdown seconds before first run
 
   // ---------- Elements ----------
@@ -270,6 +282,7 @@
   // ---------- Helpers ----------
   const fmt = s => { s = Math.max(0, Math.ceil(s)); const m = Math.floor(s/60); const r = s%60; return m+":"+String(r).padStart(2,"0"); };
   const fmtLoose = s => { const m = Math.floor(s/60); const r = s%60; return r? m+":"+String(r).padStart(2,"0") : m+":00"; };
+  const paceLabel = () => fmtLoose(cfg.paceSec);   // "6:30"
 
   function buildPlan(){
     plan = [{phase:"ready", dur:READY, set:0}];
@@ -287,7 +300,9 @@
     const total = cfg.sets*(cfg.run+cfg.walk);
     $("totalTime").textContent = fmtLoose(total);
     $("planSummary").textContent = `Phase 1 · ${fmtLoose(cfg.run)} run / ${fmtLoose(cfg.walk)} walk × ${cfg.sets}`;
-    $("paceHint").innerHTML = `target <b>${cfg.pace}</b> /km`;
+    $("paceVal").textContent = paceLabel();
+    $("runPaceLbl").textContent = `at ${paceLabel()} /km`;
+    $("paceHint").innerHTML = `target <b>${paceLabel()}</b> /km`;
   }
   document.querySelectorAll('.stepper button').forEach(b=>{
     b.addEventListener('click',()=>{
@@ -295,6 +310,7 @@
       if(k==='run')  cfg.run  = Math.max(15, cfg.run + d);
       if(k==='walk') cfg.walk = Math.max(15, cfg.walk + d);
       if(k==='sets') cfg.sets = Math.min(30, Math.max(1, cfg.sets + d));
+      if(k==='pace') cfg.paceSec = Math.min(720, Math.max(180, cfg.paceSec + d)); // 3:00–12:00 /km
       refreshSetup();
     });
   });
@@ -385,13 +401,28 @@
   });
 
   // ---------- Live pace tracker (GPS) ----------
+  // Speed is derived from a rolling 10s distance/time window (like Garmin/Strava "rolling
+  // pace"), not per-fix instantaneous differencing — summing distance over a wider, more
+  // reliable time base lets position noise cancel instead of dominating the reading, which
+  // is essential at rehab pace where per-fix movement is only ~1-2m.
   const pacePanel=$("pacePanel"), paceNowEl=$("paceNow"), paceStatusEl=$("paceStatus"),
-        pacePctEl=$("pacePct"), gaugeZone=$("gaugeZone"), gaugeMarker=$("gaugeMarker"),
+        pacePctEl=$("pacePct"), paceAvgEl=$("paceAvg"), gaugeZone=$("gaugeZone"), gaugeMarker=$("gaugeMarker"),
         gaugeTargetLbl=$("gaugeTargetLbl");
   const GLO=70, GHI=130;               // gauge maps 70%–130% of target speed → 0–100% width
-  let geoWatch=null, lastFix=null, spdSamples=[], curSpeed=0, geoActive=false;
-  const paceToSec = p => { const [m,s]=p.split(':').map(Number); return m*60+(s||0); };
-  const targetSpeed = () => 1000/paceToSec(cfg.pace);   // m/s
+  const MAX_ACC=25;      // m — ignore GPS fixes weaker than this
+  const MAX_SPEED=8;     // m/s (~2:05/km) — reject implausible GPS spikes
+  const WINDOW_SEC=10;   // rolling window for the displayed pace
+  const MIN_WINDOW_DT=3; // need at least this much history before trusting the window
+  const EMA_TAU=5;       // light smoothing on top of the window, to stop it "stepping"
+
+  let geoWatch=null, geoActive=false;
+  let fixHistory=[], lastAcceptedFix=null;          // accepted fixes within the rolling window
+  let curSpeed=0, emaSpeed=0, emaInit=false, lastEmaT=null;
+  let integAnchorT=null;                            // last fix time counted toward run distance
+  let runIntervalDist=0, runIntervalTime=0;         // this run interval (resets each "run" segment)
+  let sessionRunDist=0, sessionRunTime=0;           // whole workout, run segments only
+
+  const targetSpeed = () => 1000/cfg.paceSec;   // m/s
   const gclamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const posFor = pct => gclamp((pct-GLO)/(GHI-GLO)*100, 0, 100);
   const mmss = s => { s=Math.max(0,Math.round(s)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
@@ -399,9 +430,13 @@
     const dLa=r(c-a), dLo=r(d-b);
     const x=Math.sin(dLa/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(dLo/2)**2;
     return 2*R*Math.asin(Math.sqrt(x)); }
+  function paceFromDistTime(d,t){                   // distance in m, time in s -> "m:ss" or null
+    if(t<3 || d<=0) return null;
+    return mmss(1000/(d/t));
+  }
 
   function setupGauge(){
-    gaugeTargetLbl.textContent=cfg.pace;
+    gaugeTargetLbl.textContent=paceLabel();
     const l=posFor(92), rr=posFor(108);            // "in zone" = 92%–108% of target speed
     gaugeZone.style.left=l+'%'; gaugeZone.style.width=(rr-l)+'%';
   }
@@ -416,30 +451,69 @@
   }
   function stopGeo(){
     if(geoWatch!=null){ try{navigator.geolocation.clearWatch(geoWatch);}catch(e){} geoWatch=null; }
-    lastFix=null; spdSamples=[]; curSpeed=0; geoActive=false;
+    fixHistory=[]; lastAcceptedFix=null; curSpeed=0; emaSpeed=0; emaInit=false; lastEmaT=null;
+    integAnchorT=null; geoActive=false;
   }
   function setStatus(txt,cls){ paceStatusEl.textContent=txt; paceStatusEl.className='pace-status '+cls; }
   function resetPacePanel(){
     pacePanel.classList.add('idle'); paceNowEl.textContent='--:--'; pacePctEl.textContent='--';
+    paceAvgEl.textContent='--:--';
     setStatus('Locating…','info'); gaugeMarker.style.left='50%'; gaugeMarker.style.background='var(--muted)';
   }
   function onGeoErr(err){
     setStatus(err && err.code===1 ? 'Location off' : 'No signal','warn');
     pacePanel.classList.add('idle');
   }
-  function onFix(pos){
-    geoActive=true;
-    const c=pos.coords; let sp=c.speed;
-    if(sp==null || isNaN(sp) || sp<0){                 // derive speed if the device doesn't report it
-      if(lastFix){
-        const d=haversine(lastFix.lat,lastFix.lon,c.latitude,c.longitude);
-        const dt=(pos.timestamp-lastFix.t)/1000;
-        sp = dt>0 ? d/dt : curSpeed;
-      } else sp=0;
+
+  // Accumulate distance covered while actually in a "run" segment (not walk/ready/paused),
+  // using the same smoothed speed shown on screen — so live and session averages agree
+  // with what the runner sees, and pauses/segment switches never inject a bogus jump.
+  function integrateRunDistance(t){
+    const seg = running && plan[segIndex] ? plan[segIndex] : null;
+    const active = running && !paused && seg && seg.phase==='run';
+    if(!active){ integAnchorT=null; return; }
+    if(integAnchorT==null){ integAnchorT=t; return; }
+    const dt=t-integAnchorT;
+    if(dt>0 && dt<5){
+      const d=curSpeed*dt;
+      runIntervalDist+=d; runIntervalTime+=dt;
+      sessionRunDist+=d; sessionRunTime+=dt;
     }
-    lastFix={lat:c.latitude, lon:c.longitude, t:pos.timestamp};
-    spdSamples.push(sp); if(spdSamples.length>5) spdSamples.shift();
-    curSpeed=spdSamples.reduce((x,y)=>x+y,0)/spdSamples.length;   // smooth over last ~5 fixes
+    integAnchorT=t;
+  }
+
+  function onFix(pos){
+    const c=pos.coords, t=pos.timestamp/1000;   // t in seconds
+    if(c.accuracy!=null && c.accuracy>MAX_ACC){
+      if(!fixHistory.length) setStatus('Weak GPS','warn');
+      return;                                    // drop low-quality fixes outright
+    }
+    if(lastAcceptedFix){
+      const d=haversine(lastAcceptedFix.lat,lastAcceptedFix.lon,c.latitude,c.longitude);
+      const dt=t-lastAcceptedFix.t;
+      if(dt<=0 || d/dt>MAX_SPEED) return;         // implausible jump → GPS spike, drop it
+    }
+    lastAcceptedFix={lat:c.latitude, lon:c.longitude, t};
+    fixHistory.push(lastAcceptedFix);
+    const cutoff=t-WINDOW_SEC-2;
+    while(fixHistory.length>1 && fixHistory[0].t<cutoff) fixHistory.shift();
+
+    geoActive=true;
+    const anchor=fixHistory[0];
+    const windowDt=t-anchor.t;
+    if(windowDt>=MIN_WINDOW_DT){
+      const windowDist=haversine(anchor.lat,anchor.lon,c.latitude,c.longitude);
+      const windowSpeed=windowDist/windowDt;
+      if(!emaInit){ emaSpeed=windowSpeed; emaInit=true; lastEmaT=t; }
+      else{
+        const dt=Math.max(0.1, t-lastEmaT);
+        const a=1-Math.exp(-dt/EMA_TAU);
+        emaSpeed+=a*(windowSpeed-emaSpeed);
+        lastEmaT=t;
+      }
+      curSpeed=emaSpeed;
+      integrateRunDistance(t);
+    }
     updatePaceUI();
   }
   function updatePaceUI(){
@@ -449,25 +523,27 @@
     if(!moving){
       paceNowEl.textContent='--:--'; pacePctEl.textContent='--';
       setStatus(phase==='walk'?'Recover':'Start moving','info');
-      pacePanel.classList.add('idle'); return;
-    }
-    const pct=Math.round(curSpeed/targetSpeed()*100);
-    paceNowEl.textContent=mmss(1000/curSpeed);
-    pacePctEl.textContent=pct;
-    gaugeMarker.style.left=posFor(pct)+'%';
-
-    if(phase!=='run'){          // only judge the zone during a run interval
       pacePanel.classList.add('idle');
-      setStatus(phase==='walk'?'Recover':'—','info');
-      gaugeMarker.style.background='var(--walk)';
-      return;
+    } else {
+      const pct=Math.round(curSpeed/targetSpeed()*100);
+      paceNowEl.textContent=mmss(1000/curSpeed);
+      pacePctEl.textContent=pct;
+      gaugeMarker.style.left=posFor(pct)+'%';
+
+      if(phase!=='run'){          // only judge the zone during a run interval
+        pacePanel.classList.add('idle');
+        setStatus(phase==='walk'?'Recover':'—','info');
+        gaugeMarker.style.background='var(--walk)';
+      } else {
+        pacePanel.classList.remove('idle');
+        let cls,txt,col;
+        if(pct>=92 && pct<=108){ cls='good'; txt='In the zone ✓'; col='var(--good)'; }
+        else if(pct<92){ if(pct>=85){cls='warn';txt='A touch slow';col='var(--warn)';} else {cls='bad';txt='Speed up';col='var(--bad)';} }
+        else { if(pct<=118){cls='warn';txt='A touch fast';col='var(--warn)';} else {cls='bad';txt='Ease off';col='var(--bad)';} }
+        setStatus(txt,cls); gaugeMarker.style.background=col;
+      }
     }
-    pacePanel.classList.remove('idle');
-    let cls,txt,col;
-    if(pct>=92 && pct<=108){ cls='good'; txt='In the zone ✓'; col='var(--good)'; }
-    else if(pct<92){ if(pct>=85){cls='warn';txt='A touch slow';col='var(--warn)';} else {cls='bad';txt='Speed up';col='var(--bad)';} }
-    else { if(pct<=118){cls='warn';txt='A touch fast';col='var(--warn)';} else {cls='bad';txt='Ease off';col='var(--bad)';} }
-    setStatus(txt,cls); gaugeMarker.style.background=col;
+    paceAvgEl.textContent = paceFromDistTime(runIntervalDist, runIntervalTime) || '--:--';
   }
 
   // ---------- Colors per phase ----------
@@ -490,6 +566,8 @@
     buildPlan(); buildDots();
     setTotal.textContent = cfg.sets;
     segIndex = 0; running = true; paused = false;
+    sessionRunDist = 0; sessionRunTime = 0;
+    runIntervalDist = 0; runIntervalTime = 0;
     setupView.classList.add('hidden');
     doneView.classList.add('hidden');
     activeView.classList.remove('hidden');
@@ -506,6 +584,7 @@
     segStart = performance.now();
     lastTickSecond = -1;
     applyPhaseTheme(seg.phase);
+    if(seg.phase==='run'){ runIntervalDist=0; runIntervalTime=0; }
     if(seg.phase!=='ready'){
       setNum.textContent = seg.set;
       paintDots(seg.set);
@@ -566,7 +645,11 @@
     body.classList.remove('phase-run','phase-walk');
     mainBtn.textContent='Again';
     mainBtn.classList.remove('paused');
-    $("doneSummary").textContent = `${cfg.sets} sets · ${fmtLoose(cfg.sets*(cfg.run+cfg.walk))} total. Log it and recover well.`;
+    const totalStr = fmtLoose(cfg.sets*(cfg.run+cfg.walk));
+    const avg = paceFromDistTime(sessionRunDist, sessionRunTime);
+    $("doneSummary").textContent = avg
+      ? `${cfg.sets} sets · ${totalStr} total. Avg run pace ${avg}/km over ${fmt(sessionRunTime)} running (${(sessionRunDist/1000).toFixed(2)} km).`
+      : `${cfg.sets} sets · ${totalStr} total. Log it and recover well.`;
   }
 
   function togglePause(){
