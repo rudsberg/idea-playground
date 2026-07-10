@@ -18,3 +18,21 @@ Each app is a single, dependency-free `index.html` in its own directory.
 Pages is served from the `main` branch root (`/`). Every app lives in a
 subdirectory and is reachable at `…/idea-playground/<app>/`. A `.nojekyll`
 file at the root disables Jekyll so files are served exactly as committed.
+
+## Tests
+
+End-to-end Playwright tests drive the real apps in Chromium:
+
+- `tests/run-rehab.spec.js` — runs a full workout against a **simulated GPS
+  feed** (`tests/helpers/mock-geo.js`: seeded jitter, weak fixes, and an
+  injected frozen-GPS dropout) and asserts the pace engine's guarantees:
+  per-set warm-up, sane set averages, "Weak GPS" handling, and session-average
+  convergence. Runs in wall-clock time (~2 min).
+- `tests/cards.spec.js` — full 20-draw Speed Draw game, timer semantics, and
+  the best-time scoreboard reset.
+
+```bash
+npm install
+npx playwright install chromium   # first time only
+npm test
+```
