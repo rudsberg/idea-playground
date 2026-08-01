@@ -4,6 +4,8 @@
 
 - Source visual truth: `qa/source-option-2.png`
 - Implementation screenshot: `qa/progress-390x844-pass2.png`
+- User feedback screenshot: `qa/feedback-before-compact-transition.jpg`
+- Compact transition screenshot: `qa/compact-progress-390x844.png`
 - Combined comparison: `qa/comparison-pass2.png`
 - Source pixels: 853 × 1844, normalized by browser rendering to 390 × 844.
 - Implementation pixels: 390 × 844.
@@ -38,6 +40,8 @@ No P0/P1/P2 findings.
 ## Primary interactions tested
 
 - Open progress from setup and return with Back.
+- Open the private backfill route, review 11 reconstructed Strava entries, import them idempotently, and render five workout groups newest-first.
+- Preserve two clearly labeled estimated entries while keeping the screenshot-derived dates, total distances, durations, and average activity paces.
 - Restore last-used run, walk, set, and tempo values after reload.
 - Render two automatically grouped workout chapters newest-first.
 - Calculate +100% run interval and +60% total running transitions.
@@ -58,6 +62,8 @@ No P0/P1/P2 findings.
 - Pass 1: functional screenshot captured; aggregate copy wrapped with an orphaned final word.
 - Fix: aggregate content was split into two balanced semantic spans with responsive wrapping.
 - Pass 2: combined source/implementation comparison found no actionable P0/P1/P2 issues; responsive and interaction checks passed with no browser errors.
+- Backfill pass: the 390 × 844 import and five-group history states were captured with no horizontal overflow or browser errors. All 11 sessions and both estimated markers rendered correctly.
+- Compact-transition pass: user evidence showed the staggered transition consuming too much vertical space. The transition was rebuilt as one 80px horizontal band with three equal metrics and a quiet 2px connector. The five-group document height fell from 2321px to 1870px, with no horizontal overflow or browser errors. The focused regression suite passed.
 
 ## Follow-up polish
 

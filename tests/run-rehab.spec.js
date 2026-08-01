@@ -203,8 +203,10 @@ test('progress history groups matching workouts and shows calculated progression
   await expect(page.locator('.workout-group')).toHaveCount(2);
   await expect(page.locator('.workout-group').first()).toContainText('2:00 run');
   await expect(page.locator('.workout-group').last()).toContainText('1:00 run');
-  await expect(page.locator('.transition')).toContainText('+100% interval');
-  await expect(page.locator('.transition')).toContainText('+60% total running');
+  await expect(page.locator('.transition')).toContainText('Run interval');
+  await expect(page.locator('.transition')).toContainText('+100%');
+  await expect(page.locator('.transition')).toContainText('Total run');
+  await expect(page.locator('.transition')).toContainText('+60%');
 });
 
 test('halfway point shows and speaks a turn-back cue once', async ({ page }) => {
@@ -224,4 +226,26 @@ test('halfway point shows and speaks a turn-back cue once', async ({ page }) => 
   await expect.poll(() => page.evaluate(() => window.__spoken.filter(text => /halfway/i.test(text)).length), {
     timeout: 5_000,
   }).toBe(1);
+});
+
+test('private backfill imports the Strava journey into five workout groups without duplicates', async ({ page }) => {
+  const importUrl = `${APP}?backfill=joel-rehab-2026`;
+  await page.goto(importUrl);
+  await expect(page.locator('#importView')).toBeVisible();
+  await expect(page.locator('.import-row')).toHaveCount(11);
+  await expect(page.locator('.import-row .estimated-pill')).toHaveCount(2);
+
+  await page.click('#importHistoryBtn');
+  await expect(page.locator('#importStatus')).toContainText('Imported 11 sessions');
+  await page.click('#importProgressBtn');
+  await expect(page.locator('.workout-group')).toHaveCount(5);
+  await expect(page.locator('.workout-group').first()).toContainText('7:30 run');
+  await expect(page.locator('.workout-group').last()).toContainText('1:00 run');
+  await expect(page.locator('.session-row')).toHaveCount(11);
+  await expect(page.locator('.session-row .estimated-pill')).toHaveCount(2);
+
+  await page.goto(importUrl);
+  await page.click('#importHistoryBtn');
+  await page.click('#importProgressBtn');
+  await expect(page.locator('.session-row')).toHaveCount(11);
 });
