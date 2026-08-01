@@ -199,7 +199,7 @@
   .transition{position:relative;margin:0 14px;padding:10px 0 10px 32px}
   /* History is newest-first: the rail charges upward from the older phase below. */
   .transition::before{content:"";position:absolute;left:14px;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#86efac 0%,#22c55e 38%,#15803d 68%,#14532d 100%);border-radius:999px;box-shadow:0 -3px 12px rgba(74,222,128,.32)}
-  .transition::after{content:"";position:absolute;left:10px;top:-1px;width:12px;height:12px;border-radius:50%;background:#bbf7d0;border:2px solid #22c55e;box-shadow:0 0 0 4px var(--bg),0 0 14px rgba(74,222,128,.62)}
+  .transition.current-position::after{content:"";position:absolute;left:10px;top:-1px;width:12px;height:12px;border-radius:50%;background:#bbf7d0;border:2px solid #22c55e;box-shadow:0 0 0 4px var(--bg),0 0 14px rgba(74,222,128,.62)}
   .transition-card{position:relative;background:rgba(15,21,40,.92);border:1px solid rgba(59,73,111,.72);border-radius:14px;overflow:hidden;box-shadow:0 5px 18px rgba(0,0,0,.12)}
   .transition-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:29px;padding:6px 10px;border-bottom:1px solid rgba(37,46,73,.72)}
   .transition-head span{color:#86efac;font-size:9px;font-weight:800;letter-spacing:.65px;text-transform:uppercase}
@@ -241,7 +241,7 @@
     .session-date b,.session-value b{font-size:12px}
     .transition{margin-inline:10px;padding-left:28px}
     .transition::before{left:12px}
-    .transition::after{left:8px}
+    .transition.current-position::after{left:8px}
     .transition-head{padding-inline:8px}
     .transition-metric{padding-inline:4px}
     .transition-metric b{font-size:10px}
@@ -901,7 +901,7 @@
       </div>
     </section>`;
   }
-  function transitionMarkup(newer,older,newerPhase,olderPhase){
+  function transitionMarkup(newer,older,newerPhase,olderPhase,isCurrentPosition){
     const oldRunTotal=older.run*older.sets, newRunTotal=newer.run*newer.sets;
     const intervalPct=older.run ? (newer.run-older.run)/older.run*100 : 0;
     const runningPct=oldRunTotal ? (newRunTotal-oldRunTotal)/oldRunTotal*100 : 0;
@@ -912,7 +912,7 @@
     const distanceMetric=oldDistance&&newDistance
       ? `<div class="transition-metric"><span>Distance km</span><b>${(oldDistance/1000).toFixed(2)}–${(newDistance/1000).toFixed(2)}</b><small class="${deltaClass(distancePct)}">${signedPct(distancePct)}</small></div>`
       : `<div class="transition-metric"><span>Recovery</span><b>${fmtLoose(older.walk)}–${fmtLoose(newer.walk)}</b><small>walk interval</small></div>`;
-    return `<div class="transition" aria-label="Progression from Phase ${olderPhase} to Phase ${newerPhase}">
+    return `<div class="transition${isCurrentPosition?' current-position':''}" aria-label="Progression from Phase ${olderPhase} to Phase ${newerPhase}">
       <div class="transition-card">
         <div class="transition-head"><span>Progression</span><b>Phase ${olderPhase} <i>→</i> Phase ${newerPhase}</b></div>
         <div class="transition-grid">
@@ -937,7 +937,7 @@
     groups.forEach((group,index)=>{
       const phase=groups.length-index;
       groupHtml+=groupMarkup(group,index,phase);
-      if(groups[index+1]) groupHtml+=transitionMarkup(group,groups[index+1],phase,phase-1);
+      if(groups[index+1]) groupHtml+=transitionMarkup(group,groups[index+1],phase,phase-1,index===0);
     });
     content.innerHTML=`<div class="history-summary"><span><b>${sessions.length}</b> sessions · <b>${fmtKm(totalRun)}</b> running</span><span><b>${fmtKm(totalWalk)}</b> walking · <b>${fmtDuration(totalTime)}</b> active</span></div><div class="history-groups">${groupHtml}</div><p class="history-note">History stays only on this device.</p>`;
   }

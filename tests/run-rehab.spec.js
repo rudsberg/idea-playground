@@ -273,6 +273,8 @@ test('private backfill imports the Strava journey into five workout groups witho
   await expect(page.locator('.workout-group').first().locator('.group-kicker')).toContainText('Phase 5');
   await expect(page.locator('.workout-group').last().locator('.group-kicker')).toHaveText('Phase 1');
   await expect(page.locator('.transition')).toHaveCount(4);
+  await expect(page.locator('.transition.current-position')).toHaveCount(1);
+  await expect(page.locator('.transition').first()).toHaveClass(/current-position/);
   await expect(page.locator('.transition').first()).toHaveAttribute('aria-label', 'Progression from Phase 4 to Phase 5');
   await expect(page.locator('.session-row')).toHaveCount(11);
   await expect(page.locator('#historyContent')).not.toContainText(/estimated|est\./i);
