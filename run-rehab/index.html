@@ -829,6 +829,16 @@
     return (Array.isArray(raw)?raw:[]).map(normalizeSession).filter(Boolean)
       .sort((a,b)=>new Date(b.completedAt)-new Date(a.completedAt));
   }
+  function restoreLatestWorkoutSettings(){
+    const latest=loadHistory()[0];
+    if(!latest) return false;
+    cfg.run=latest.run;
+    cfg.walk=latest.walk;
+    cfg.sets=latest.sets;
+    if(Number.isFinite(latest.paceSec) && latest.paceSec>0) cfg.paceSec=latest.paceSec;
+    saveSettings();
+    return true;
+  }
   function recordSession(){
     const avgRunPaceSec=sesDist>0 && sesTime>0 ? sesTime/(sesDist/1000) : 0;
     const session={
@@ -963,6 +973,8 @@
     const merged=new Map(loadHistory().map(session=>[session.id,session]));
     [...REHAB_BACKFILL,...POST_REHAB_BACKFILL].forEach(session=>merged.set(session.id,session));
     writeJson(HISTORY_KEY,[...merged.values()]);
+    restoreLatestWorkoutSettings();
+    refreshSetup();
     const status=$("importStatus");
     status.textContent="Imported 11 sessions into this device. You can safely run this import again without creating duplicates.";
     status.classList.remove('hidden');
@@ -1124,6 +1136,7 @@
     $("historyBtn").classList.remove('hidden');
     mainBtn.textContent='Start';
     mainBtn.classList.remove('paused');
+    restoreLatestWorkoutSettings();
     refreshSetup();
   }
 
@@ -1145,6 +1158,7 @@
   $("importHistoryBtn").addEventListener('click',importBackfill);
   $("importProgressBtn").addEventListener('click',showHistory);
 
+  restoreLatestWorkoutSettings();
   refreshSetup();
   if(new URLSearchParams(location.search).get('backfill')==='joel-rehab-2026') showImport();
 })();

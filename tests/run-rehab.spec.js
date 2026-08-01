@@ -158,6 +158,29 @@ test('setup copy is phase-free and last workout settings persist on device', asy
   await expect(page.locator('#paceVal')).toHaveText('6:35');
 });
 
+test('next workout is prefilled from the latest completed session', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('rehab-run-settings-v1', JSON.stringify({
+      run: 45, walk: 45, sets: 2, paceSec: 420,
+    }));
+    localStorage.setItem('rehab-run-history-v1', JSON.stringify([
+      {
+        id: 'previous-workout', completedAt: '2026-07-31T08:00:00.000Z',
+        run: 180, walk: 60, sets: 8, paceSec: 375,
+        totalDurationSec: 1920, runDurationSec: 1440, walkDurationSec: 480,
+        totalDistanceM: 4500, runDistanceM: 3800, walkDistanceM: 700,
+      },
+    ]));
+  });
+  await page.goto(APP);
+
+  await expect(page.locator('#runVal')).toHaveText('3:00');
+  await expect(page.locator('#walkVal')).toHaveText('1:00');
+  await expect(page.locator('#setsVal')).toHaveText('8');
+  await expect(page.locator('#paceVal')).toHaveText('6:15');
+  await expect(page.locator('#planSummary')).toHaveText('3:00 run / 1:00 walk × 8');
+});
+
 test('pace gauge uses a direct plus/minus 20 second target window', async ({ page }) => {
   await page.goto(APP);
   await page.click('#mainBtn');
@@ -240,6 +263,9 @@ test('private backfill imports the Strava journey into five workout groups witho
 
   await page.click('#importHistoryBtn');
   await expect(page.locator('#importStatus')).toContainText('Imported 11 sessions');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('rehab-run-settings-v1')))).toMatchObject({
+    run: 450, walk: 60, sets: 5, paceSec: 380,
+  });
   await page.click('#importProgressBtn');
   await expect(page.locator('.workout-group')).toHaveCount(5);
   await expect(page.locator('.workout-group').first()).toContainText('7:30 run');
