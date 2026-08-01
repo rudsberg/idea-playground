@@ -2,49 +2,58 @@
 
 ## Comparison target
 
-- Audit baseline: `qa/01-current-progress-audit.png`
-- Revised implementation: `qa/02-revised-progress.png`
-- Narrow responsive check: `qa/revised-320.png`
-- Wide responsive check: `qa/revised-768.png`
-- CSS viewports: 320, 390, and 768 × 844 at device scale factor 1.
-- State: imported 11-session history, rendered newest-first across five inferred phases.
+- Source visual truth: `qa/05-current-start-audit.png`
+- Primary implementation: `qa/06-next-workout-390.png`
+- Level-up state: `qa/07-level-up-390.png`
+- Custom-session state: `qa/08-custom-session-390.png`
+- Updated progress screen: `qa/09-level-progress-390.png`
+- Narrow responsive pass: `qa/11-next-workout-320-pass2.png`
+- Combined source/implementation evidence: `qa/10-level-picker-comparison.png`
+- Source and implementation: 390 × 844 pixels at device scale factor 1.
 
-## Audit findings
+## State and intended outcome
 
-- The previous comparison band looked like a detached statistics card. It did not name the two workout groups it compared, so its role was ambiguous.
-- Group headings were visually dominant while table labels and session values were comparatively cramped.
-- The green connector indicated sequence but not direction or meaning.
-- Reconstructed sessions carried estimate badges even though the product has no estimate state or workflow.
+The existing start screen is the visual source. The selected product change adds a decision layer for continuing the current Level, progressing to a new Level, or configuring a secondary custom session without changing the established dark mobile visual language.
 
-## Implemented design response
+## Full-view comparison evidence
 
-- Every chronological workout group is inferred as Phase 1, Phase 2, and so on. The latest group adds a quiet Current label.
-- Each connector is now explicitly labeled Progression and shows the direction, for example `Phase 4 → Phase 5`, before the run interval, total running, and distance changes.
-- A battery-like rail charges from deep green at the older phase to a bright, softly glowing endpoint at the newer phase. The compact inset comparison card keeps the relationship clear without consuming excessive vertical space.
-- Group padding, radii, title sizing, table column rhythm, row height, and numeric alignment were normalized for a clearer hierarchy.
-- Estimate badges, estimate-specific model fields, import copy, and history copy were removed.
+The combined comparison shows that the implementation preserves the source header, dark navy canvas, single contained workout editor, green primary action, typography family, control shapes, and bottom action placement. The new current-Level context and two-option selector occupy previously unused vertical space rather than compressing the workout controls.
 
-## Visual QA result
+The hierarchy now reads in the required order: current Level context, next-session decision, workout configuration, tertiary custom action, then Start. The primary action remains visible at 320 × 568, 320 × 667, 320 × 844, and 390 × 844.
 
-The revised 390px rendering keeps the five-phase history within a 1,944px document, compared with 1,870px for the ambiguous unlabeled version. The 74px increase buys explicit phase-to-phase comprehension while remaining substantially more compact than the original 2,321px stepped layout. No horizontal overflow, clipping, overlap, or unreadable wrapping appears at 320px, 390px, or 768px.
+## Focused-state evidence
 
-No actionable P0, P1, or P2 visual issue remains.
+- Another session: run, walk, and set controls are visibly locked while tempo remains adjustable; the button reads `Start Level 5`.
+- Level up: the selected state is clear, structural controls unlock, and the compact comparison shows live run-interval and total-running percentages. Start remains disabled until the Level recipe changes.
+- Custom session: neither standard path appears selected, the editor is labeled as outside progression, and the supporting copy explains where the session will be stored.
+- Progress: all visible Phase terminology has been replaced by Level, while the single current-position marker and charging rails remain intact.
+
+## Findings and iteration history
+
+- [P2 resolved] At 320px, the original absolute Progress action overlapped the centered product title.
+  - Fix: converted the header to a three-column grid and tightened the narrow breakpoint typography.
+  - Post-fix evidence: `qa/11-next-workout-320-pass2.png` shows clear separation with no horizontal overflow.
+- No remaining actionable P0, P1, or P2 findings.
 
 ## Required fidelity surfaces
 
-- Typography: compact system sans-serif, 20–22px workout titles, 10px phase labels, 13px row values, and tabular numerals maintain a clear hierarchy.
-- Spacing: 16px page gutters, 14–16px group interiors, 60px session rows, and 10px progression gaps follow a consistent compact rhythm.
-- Color: green communicates run/progression, blue communicates walking, and muted blue-gray supports secondary labels without competing with the data.
-- Responsiveness: body width equals viewport width at 320px, 390px, and 768px; the history column remains capped at 620px.
-- Accessibility: native navigation buttons remain keyboard/touch accessible, and every progression bridge has a descriptive `aria-label` naming both phases.
+- Fonts and typography: the existing system typeface, weights, uppercase labels, tabular values, and compact mobile scale are preserved. New labels use the same 10–13px hierarchy as Progress.
+- Spacing and layout rhythm: the new sections use the existing 8–16px rhythm, 16px page gutters, and 16–20px radii. The bottom action remains visually anchored.
+- Colors and tokens: Level progression uses the established run green; walking remains blue; secondary and disabled states use existing muted and ring-track tokens.
+- Image quality and assets: this screen contains no raster imagery or non-standard icon assets. Existing text controls are preserved; no placeholder visual assets were introduced.
+- Copy and content: `Level`, `Another session`, `Level up`, and `Custom session` match the selected terminology and mental model. Custom copy explicitly states that the session does not affect progression.
+- Accessibility and responsiveness: choice buttons expose tab roles and selected state, disabled controls use native semantics, the live progression preview uses an announced region, and no horizontal overflow appears at tested widths.
 
-## Interaction and regression coverage
+## Primary interactions tested
 
-- Phase numbering is inferred from oldest to newest while the page remains newest-first.
-- Matching workouts continue to group automatically.
-- Progression percentages still calculate run interval, total running, and distance changes.
-- The private 11-session backfill remains idempotent and renders five phases.
-- No estimate label appears in import or history views, including previously stored records that contain the old field.
-- Setup remains phase-free, last-used settings persist, the ±20 seconds/km pace zone remains active, and the halfway cue still fires once.
+- Continue the current Level with locked structural settings and adjustable tempo.
+- Select Level up, edit the Level recipe, see live progression deltas, and enable the next-Level start action.
+- Select a custom session and unlock all configuration controls without assigning a Level.
+- Restore the latest Level recipe after reload or import.
+- Migrate legacy history into stable Level numbers.
+- Keep custom sessions in aggregate totals while rendering them under Other sessions rather than in the Level ladder.
+- Render five imported Levels newest-first with exactly one current-position marker.
+- Preserve pace-zone, halfway cue, GPS handling, audio, and completion behavior.
+- Browser console and page errors: none in setup-state, Level-up, custom-session, and Progress captures.
 
 final result: passed

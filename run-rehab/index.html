@@ -43,13 +43,12 @@
   body.history-open main{justify-content:flex-start;align-items:stretch;padding:0}
 
   .app-header{
-    text-align:center;
+    display:grid;grid-template-columns:64px minmax(0,1fr) 64px;align-items:center;text-align:center;
     padding:18px 16px 6px;
-    position:relative;
   }
-  .app-header h1{font-size:15px;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
-  .app-header .sub{font-size:12px;color:var(--muted);margin-top:4px;opacity:.75;padding-inline:62px}
-  .header-action{position:absolute;right:16px;top:12px;padding:9px 10px;background:transparent;color:var(--walk);font-size:13px}
+  .app-header h1{grid-column:2;font-size:15px;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+  .app-header .sub{grid-column:2;font-size:12px;color:var(--muted);margin-top:4px;opacity:.75;white-space:nowrap}
+  .header-action{grid-column:3;grid-row:1/3;justify-self:end;padding:9px 0 9px 8px;background:transparent;color:var(--walk);font-size:13px}
 
   main{
     flex:1;
@@ -93,6 +92,7 @@
     border-radius:16px;transition:transform .1s ease,background .2s ease,opacity .2s ease;
   }
   button:active{transform:scale(.95)}
+  button:disabled{cursor:default;opacity:.42;transform:none}
   .btn-primary{
     flex:1;max-width:340px;padding:20px;font-size:19px;letter-spacing:.5px;
     background:var(--run);color:#04210f;
@@ -104,17 +104,42 @@
   .btn-tertiary{padding:20px 18px;font-size:15px;background:var(--card);color:var(--walk)}
 
   /* Setup panel */
+  #setupView{gap:12px;max-width:340px}
+  .next-context{width:100%;padding:0 4px 2px}
+  .next-kicker{display:flex;align-items:center;gap:6px;color:var(--run);font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase}
+  .next-kicker .current-label::before{content:"\00b7";margin-right:6px;color:var(--muted)}
+  .next-context h2{font-size:25px;line-height:1.14;letter-spacing:-.4px;margin-top:7px;white-space:nowrap}
+  .next-context h2 .run-copy{color:var(--run)}
+  .next-context h2 .walk-copy{color:var(--walk)}
+  .next-meta{color:var(--muted);font-size:12px;line-height:1.35;margin-top:7px}
+  .setup-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;padding:4px;background:rgba(21,27,48,.72);border:1px solid var(--ring-track);border-radius:16px}
+  .setup-choice{min-width:0;padding:10px 8px;border-radius:12px;background:transparent;color:var(--muted);text-align:left}
+  .setup-choice b{display:block;font-size:13px;color:inherit;line-height:1.15}
+  .setup-choice small{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-top:4px;white-space:nowrap}
+  .setup-choice.selected{background:var(--ring-track);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.16)}
+  .setup-choice.selected small{color:#aeb6ce}
   .setup{
-    background:var(--card);border-radius:20px;padding:18px;width:100%;max-width:340px;
-    display:flex;flex-direction:column;gap:14px;
+    background:var(--card);border:1px solid var(--ring-track);border-radius:20px;padding:15px 17px 16px;width:100%;max-width:340px;
+    display:flex;flex-direction:column;gap:12px;
   }
-  .setup h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:center}
+  .setup-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:2px}
+  .setup-head h3{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+  .setup-head span{font-size:10px;color:var(--muted);text-align:right;line-height:1.25}
   .field{display:flex;align-items:center;justify-content:space-between;gap:12px}
   .field label{font-size:15px;color:var(--text);font-weight:600}
   .stepper{display:flex;align-items:center;gap:10px}
   .stepper button{width:38px;height:38px;background:var(--bg);color:var(--text);font-size:22px;border-radius:12px;line-height:1}
   .stepper .val{min-width:64px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
   .stepper .val small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+  .level-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--ring-track);padding-top:11px;margin-top:1px}
+  .level-preview div{text-align:center;border-left:1px solid var(--ring-track)}
+  .level-preview div:first-child{border-left:none}
+  .level-preview b{display:block;color:#86efac;font-size:13px;font-variant-numeric:tabular-nums}
+  .level-preview span{display:block;color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.45px;text-transform:uppercase;margin-top:3px}
+  .level-preview-note{grid-column:1/-1!important;border-left:none!important;color:var(--muted);font-size:10px;line-height:1.3;margin-top:8px}
+  .custom-session-btn{background:transparent;color:var(--muted);font-size:12px;padding:5px 10px;text-decoration:underline;text-decoration-color:rgba(139,147,173,.45);text-underline-offset:3px}
+  .custom-session-btn.active{color:var(--walk);text-decoration-color:rgba(56,189,248,.45)}
+  .custom-note{color:var(--muted);font-size:10px;text-align:center;margin-top:-7px}
 
   .hint{font-size:12px;color:var(--muted);text-align:center;line-height:1.5;padding:0 10px;opacity:.85;max-width:340px;margin-inline:auto}
   .hidden{display:none!important}
@@ -197,7 +222,7 @@
   .session-value.distance b{color:var(--run)}
   .session-value{text-align:right}
   .transition{position:relative;margin:0 14px;padding:10px 0 10px 32px}
-  /* History is newest-first: the rail charges upward from the older phase below. */
+  /* History is newest-first: the rail charges upward from the older level below. */
   .transition::before{content:"";position:absolute;left:14px;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#86efac 0%,#22c55e 38%,#15803d 68%,#14532d 100%);border-radius:999px;box-shadow:0 -3px 12px rgba(74,222,128,.32)}
   .transition.current-position::after{content:"";position:absolute;left:10px;top:-1px;width:12px;height:12px;border-radius:50%;background:#bbf7d0;border:2px solid #22c55e;box-shadow:0 0 0 4px var(--bg),0 0 14px rgba(74,222,128,.62)}
   .transition-card{position:relative;background:rgba(15,21,40,.92);border:1px solid rgba(59,73,111,.72);border-radius:14px;overflow:hidden;box-shadow:0 5px 18px rgba(0,0,0,.12)}
@@ -215,6 +240,17 @@
   .transition-metric small.negative{color:#fda4af}
   .history-groups{display:flex;flex-direction:column}
   .history-note{text-align:center;color:var(--muted);font-size:11px;line-height:1.45;margin-top:18px;padding:0 16px}
+  .other-history{margin-top:16px;border:1px solid var(--ring-track);border-radius:18px;overflow:hidden;background:rgba(21,27,48,.56)}
+  .other-head{padding:14px 16px;border-bottom:1px solid var(--ring-track)}
+  .other-head b{display:block;font-size:15px}
+  .other-head span{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+  .other-row{display:grid;grid-template-columns:70px minmax(0,1fr) 62px;gap:8px;align-items:center;min-height:58px;padding:9px 15px;border-top:1px solid rgba(37,46,73,.72);font-variant-numeric:tabular-nums}
+  .other-row:first-child{border-top:none}
+  .other-row b{display:block;font-size:12px;line-height:1.2}
+  .other-row span{display:block;color:var(--muted);font-size:10px;line-height:1.2;margin-top:3px}
+  .other-workout{text-align:center}
+  .other-distance{text-align:right}
+  .other-distance b{color:var(--run)}
   .import-shell{width:min(100%,620px);margin:0 auto;padding:20px 16px calc(36px + env(safe-area-inset-bottom))}
   .import-head{text-align:center;margin-bottom:22px}
   .import-head h2{font-size:32px;font-weight:800;line-height:1.05}
@@ -236,6 +272,14 @@
   .import-actions button{width:100%;padding:17px;font-size:16px}
   .import-status{color:var(--run);font-size:13px;font-weight:700;text-align:center;line-height:1.4;margin-top:12px}
   @media (max-width:380px){
+    .app-header{grid-template-columns:54px minmax(0,1fr) 54px;padding-inline:10px}
+    .app-header h1{font-size:13px;letter-spacing:.35px}
+    .app-header .sub{font-size:11px}
+    .header-action{font-size:12px}
+    .next-context h2{font-size:22px}
+    .setup{padding-inline:14px}
+    .setup-choice{padding-inline:7px}
+    .setup-choice b{font-size:12px}
     .group-title{font-size:20px}
     .session-head,.session-row{grid-template-columns:minmax(68px,1.08fr) repeat(3,minmax(50px,.78fr));padding-inline:12px;gap:5px}
     .session-date b,.session-value b{font-size:12px}
@@ -246,6 +290,15 @@
     .transition-metric{padding-inline:4px}
     .transition-metric b{font-size:10px}
     .transition-metric small{font-size:8px}
+  }
+  @media (max-height:720px){
+    .app-header{padding-top:10px}
+    main{justify-content:flex-start;overflow-y:auto;padding-top:12px}
+    #setupView{gap:9px}
+    .next-context h2{font-size:21px;margin-top:5px}
+    .next-meta{margin-top:4px}
+    .setup{gap:9px;padding-block:12px}
+    .controls{padding-bottom:14px}
   }
 </style>
 </head>
@@ -259,8 +312,17 @@
 <main>
   <!-- SETUP -->
   <section id="setupView">
+    <div class="next-context" id="nextContext">
+      <div class="next-kicker"><span id="currentLevelLabel">Level 1</span><span class="current-label" id="currentLevelState">Ready</span></div>
+      <h2 id="currentWorkoutTitle"><span class="run-copy">1:00 run</span> · <span class="walk-copy">2:00 walk</span> × 10</h2>
+      <div class="next-meta" id="currentLevelMeta">Your first level</div>
+    </div>
+    <div class="setup-choices" id="setupChoices" role="tablist" aria-label="Next workout choice">
+      <button class="setup-choice selected" id="anotherSessionBtn" data-mode="another" role="tab" aria-selected="true" type="button"><b>Another session</b><small id="anotherSessionHint">Keep current level</small></button>
+      <button class="setup-choice" id="levelUpBtn" data-mode="levelup" role="tab" aria-selected="false" type="button"><b>Level up</b><small id="levelUpHint">Set up next level</small></button>
+    </div>
     <div class="setup">
-      <h2>Workout</h2>
+      <div class="setup-head"><h3 id="setupTitle">Level 1 workout</h3><span id="setupHint">Your starting settings</span></div>
       <div class="field">
         <label>Run</label>
         <div class="stepper">
@@ -293,8 +355,15 @@
           <button data-step="pace" data-d="5">+</button>
         </div>
       </div>
+      <div class="level-preview hidden" id="levelPreview" aria-live="polite">
+        <div><b id="previewInterval">0%</b><span>Run interval</span></div>
+        <div><b id="previewTotalRun">0%</b><span>Total running</span></div>
+        <div class="level-preview-note" id="levelPreviewNote">Adjust run, walk, or sets to define the next level.</div>
+      </div>
     </div>
-    <p class="hint" style="margin-top:16px">Total <b id="totalTime">30:00</b> · Voice and sound cues fire at every switch. Turn your volume up and allow location for live pace.</p>
+    <button class="custom-session-btn" id="customSessionBtn" type="button">Set up a custom session</button>
+    <div class="custom-note hidden" id="customNote">Saved in Other sessions · won’t affect level progression</div>
+    <p class="hint">Total <b id="totalTime">30:00</b> · Voice and sound cues fire at every switch. Turn your volume up and allow location for live pace.</p>
   </section>
 
   <!-- ACTIVE -->
@@ -432,6 +501,7 @@
   let wakeLock = null;
   let halfwayCued = false, halfwayTimer = null;
   let historyReturnView = "setup";
+  let setupMode = "another";
 
   // ---------- Helpers ----------
   const fmt = s => { s = Math.max(0, Math.ceil(s)); const m = Math.floor(s/60); const r = s%60; return m+":"+String(r).padStart(2,"0"); };
@@ -458,7 +528,31 @@
   }
 
   // ---------- Setup UI ----------
+  function levelContext(){
+    const levelSessions=loadHistory().filter(session=>session.sessionKind==="level" && Number.isFinite(session.level));
+    const currentLevel=levelSessions.reduce((max,session)=>Math.max(max,session.level),0);
+    const sessions=currentLevel ? levelSessions.filter(session=>session.level===currentLevel) : [];
+    return {hasLevel:currentLevel>0,currentLevel:currentLevel||1,sessions,baseline:sessions[0]||null};
+  }
+  function structureChanged(baseline){
+    return !!baseline && (cfg.run!==baseline.run || cfg.walk!==baseline.walk || cfg.sets!==baseline.sets);
+  }
+  function setSetupMode(mode,restore=true){
+    const context=levelContext();
+    setupMode=!context.hasLevel && mode==="levelup" ? "another" : mode;
+    if(restore && context.baseline){
+      cfg.run=context.baseline.run;
+      cfg.walk=context.baseline.walk;
+      cfg.sets=context.baseline.sets;
+      if(context.baseline.paceSec>0) cfg.paceSec=context.baseline.paceSec;
+      saveSettings();
+    }
+    refreshSetup();
+  }
   function refreshSetup(){
+    const context=levelContext();
+    const level=context.currentLevel;
+    const baseline=context.baseline;
     $("runVal").textContent  = fmtLoose(cfg.run);
     $("walkVal").textContent = fmtLoose(cfg.walk);
     $("setsVal").textContent = cfg.sets;
@@ -468,6 +562,54 @@
     $("paceVal").textContent = paceLabel();
     $("runPaceLbl").textContent = `at ${paceLabel()} /km`;
     $("paceHint").innerHTML = `target <b>${paceLabel()}</b> /km`;
+    $("currentLevelLabel").textContent=`Level ${level}`;
+    $("currentLevelState").textContent=context.hasLevel?"Current":"Ready";
+    $("currentWorkoutTitle").innerHTML=`<span class="run-copy">${fmtLoose(baseline?.run??cfg.run)} run</span> · <span class="walk-copy">${fmtLoose(baseline?.walk??cfg.walk)} walk</span> × ${baseline?.sets??cfg.sets}`;
+    $("currentLevelMeta").textContent=context.hasLevel
+      ? `${context.sessions.length} ${context.sessions.length===1?"session":"sessions"} completed`
+      : "Your first level";
+    $("setupChoices").classList.toggle("hidden",!context.hasLevel);
+    $("anotherSessionHint").textContent=`Keep Level ${level}`;
+    $("levelUpHint").textContent=`Set up Level ${level+1}`;
+    document.querySelectorAll(".setup-choice").forEach(button=>{
+      const selected=button.dataset.mode===setupMode;
+      button.classList.toggle("selected",selected);
+      button.setAttribute("aria-selected",String(selected));
+    });
+    $("customSessionBtn").classList.toggle("active",setupMode==="custom");
+    $("customNote").classList.toggle("hidden",setupMode!=="custom");
+    const isLevelUp=setupMode==="levelup" && context.hasLevel;
+    $("levelPreview").classList.toggle("hidden",!isLevelUp);
+    const changed=structureChanged(baseline);
+    if(isLevelUp && baseline){
+      const intervalPct=(cfg.run-baseline.run)/baseline.run*100;
+      const oldTotal=baseline.run*baseline.sets;
+      const newTotal=cfg.run*cfg.sets;
+      const totalPct=(newTotal-oldTotal)/oldTotal*100;
+      $("previewInterval").textContent=signedPct(intervalPct);
+      $("previewTotalRun").textContent=signedPct(totalPct);
+      $("levelPreviewNote").textContent=changed
+        ? `Compared with Level ${level}`
+        : `Adjust run, walk, or sets to define Level ${level+1}.`;
+    }
+    if(setupMode==="custom"){
+      $("setupTitle").textContent="Custom workout";
+      $("setupHint").textContent="Outside level progression";
+    } else if(isLevelUp){
+      $("setupTitle").textContent=`Level ${level+1} setup`;
+      $("setupHint").textContent="Adjust what changes";
+    } else {
+      $("setupTitle").textContent=`Level ${level} workout`;
+      $("setupHint").textContent=context.hasLevel?"Run, walk and sets locked":"Your starting settings";
+    }
+    document.querySelectorAll('.stepper button').forEach(button=>{
+      const structural=button.dataset.step!=="pace";
+      button.disabled=setupMode==="another" && context.hasLevel && structural;
+    });
+    if(!running && doneView.classList.contains("hidden")){
+      mainBtn.textContent=setupMode==="custom"?"Start custom session":`Start Level ${isLevelUp?level+1:level}`;
+      mainBtn.disabled=isLevelUp && !changed;
+    }
   }
   document.querySelectorAll('.stepper button').forEach(b=>{
     b.addEventListener('click',()=>{
@@ -480,6 +622,10 @@
       refreshSetup();
     });
   });
+  document.querySelectorAll('.setup-choice').forEach(button=>{
+    button.addEventListener('click',()=>setSetupMode(button.dataset.mode));
+  });
+  $("customSessionBtn").addEventListener('click',()=>setSetupMode("custom"));
 
   function buildDots(){
     dotsEl.innerHTML="";
@@ -775,7 +921,7 @@
   const getCss = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
   // ---------- Local progress history ----------
-  function stravaSession({id,completedAt,run,walk,sets,targetPaceSec,durationSec,distanceKm,avgPaceSec,title}){
+  function stravaSession({id,completedAt,level,run,walk,sets,targetPaceSec,durationSec,distanceKm,avgPaceSec,title}){
     const totalDistanceM=Math.round(distanceKm*1000);
     const inferredRunDistance=Math.min(totalDistanceM,Math.round((run*sets/targetPaceSec)*1000));
     return {
@@ -783,23 +929,23 @@
       totalDurationSec:durationSec,runDurationSec:run*sets,walkDurationSec:walk*sets,
       totalDistanceM,runDistanceM:inferredRunDistance,walkDistanceM:Math.max(0,totalDistanceM-inferredRunDistance),
       avgRunPaceSec:0,avgPaceSec,paceKind:"activity",measuredRunSec:0,
-      source:"Strava screenshot",sourceTitle:title
+      sessionKind:"level",level,source:"Strava screenshot",sourceTitle:title
     };
   }
   const REHAB_BACKFILL=[
-    stravaSession({id:"strava-2026-07-04",completedAt:"2026-07-04T10:30:00+02:00",run:60,walk:120,sets:10,targetPaceSec:390,durationSec:2196,distanceKm:4.03,avgPaceSec:544,title:"FIRST RUN SESSION POST KNEE SURGERY"}),
-    stravaSession({id:"estimated-2026-07-05",completedAt:"2026-07-05T12:00:00+02:00",run:60,walk:120,sets:10,targetPaceSec:390,durationSec:2025,distanceKm:3.80,avgPaceSec:531,title:"Workout"}),
-    stravaSession({id:"strava-2026-07-06",completedAt:"2026-07-06T15:19:00+02:00",run:60,walk:120,sets:10,targetPaceSec:390,durationSec:1854,distanceKm:3.57,avgPaceSec:519,title:"ANOTER ONE"}),
-    stravaSession({id:"strava-2026-07-08",completedAt:"2026-07-08T15:16:00+02:00",run:120,walk:120,sets:10,targetPaceSec:390,durationSec:2617,distanceKm:5.27,avgPaceSec:496,title:"First 2-minute run workout"}),
-    stravaSession({id:"estimated-2026-07-11",completedAt:"2026-07-11T12:00:00+02:00",run:120,walk:120,sets:10,targetPaceSec:390,durationSec:2501,distanceKm:5.16,avgPaceSec:484,title:"Workout"}),
-    stravaSession({id:"strava-2026-07-14",completedAt:"2026-07-14T09:02:00+02:00",run:120,walk:120,sets:10,targetPaceSec:390,durationSec:2385,distanceKm:5.05,avgPaceSec:472,title:"Morgonlunken!! Workout 3/3"}),
-    stravaSession({id:"strava-2026-07-16",completedAt:"2026-07-16T09:40:00+02:00",run:180,walk:60,sets:10,targetPaceSec:390,durationSec:3263,distanceKm:7.07,avgPaceSec:461,title:"Morning Run"}),
-    stravaSession({id:"strava-2026-07-19",completedAt:"2026-07-19T08:54:00+02:00",run:180,walk:60,sets:10,targetPaceSec:390,durationSec:3118,distanceKm:7.00,avgPaceSec:445,title:"Second to last rehab run! 8/9 complete"}),
-    stravaSession({id:"strava-2026-07-22",completedAt:"2026-07-22T19:31:00+02:00",run:180,walk:60,sets:10,targetPaceSec:390,durationSec:2892,distanceKm:6.67,avgPaceSec:433,title:"Final rehab run session + ice plunge, breathwork"})
+    stravaSession({id:"strava-2026-07-04",completedAt:"2026-07-04T10:30:00+02:00",level:1,run:60,walk:120,sets:10,targetPaceSec:390,durationSec:2196,distanceKm:4.03,avgPaceSec:544,title:"FIRST RUN SESSION POST KNEE SURGERY"}),
+    stravaSession({id:"estimated-2026-07-05",completedAt:"2026-07-05T12:00:00+02:00",level:1,run:60,walk:120,sets:10,targetPaceSec:390,durationSec:2025,distanceKm:3.80,avgPaceSec:531,title:"Workout"}),
+    stravaSession({id:"strava-2026-07-06",completedAt:"2026-07-06T15:19:00+02:00",level:1,run:60,walk:120,sets:10,targetPaceSec:390,durationSec:1854,distanceKm:3.57,avgPaceSec:519,title:"ANOTER ONE"}),
+    stravaSession({id:"strava-2026-07-08",completedAt:"2026-07-08T15:16:00+02:00",level:2,run:120,walk:120,sets:10,targetPaceSec:390,durationSec:2617,distanceKm:5.27,avgPaceSec:496,title:"First 2-minute run workout"}),
+    stravaSession({id:"estimated-2026-07-11",completedAt:"2026-07-11T12:00:00+02:00",level:2,run:120,walk:120,sets:10,targetPaceSec:390,durationSec:2501,distanceKm:5.16,avgPaceSec:484,title:"Workout"}),
+    stravaSession({id:"strava-2026-07-14",completedAt:"2026-07-14T09:02:00+02:00",level:2,run:120,walk:120,sets:10,targetPaceSec:390,durationSec:2385,distanceKm:5.05,avgPaceSec:472,title:"Morgonlunken!! Workout 3/3"}),
+    stravaSession({id:"strava-2026-07-16",completedAt:"2026-07-16T09:40:00+02:00",level:3,run:180,walk:60,sets:10,targetPaceSec:390,durationSec:3263,distanceKm:7.07,avgPaceSec:461,title:"Morning Run"}),
+    stravaSession({id:"strava-2026-07-19",completedAt:"2026-07-19T08:54:00+02:00",level:3,run:180,walk:60,sets:10,targetPaceSec:390,durationSec:3118,distanceKm:7.00,avgPaceSec:445,title:"Second to last rehab run! 8/9 complete"}),
+    stravaSession({id:"strava-2026-07-22",completedAt:"2026-07-22T19:31:00+02:00",level:3,run:180,walk:60,sets:10,targetPaceSec:390,durationSec:2892,distanceKm:6.67,avgPaceSec:433,title:"Final rehab run session + ice plunge, breathwork"})
   ];
   const POST_REHAB_BACKFILL=[
-    stravaSession({id:"strava-2026-07-26",completedAt:"2026-07-26T17:53:00+02:00",run:300,walk:60,sets:7,targetPaceSec:390,durationSec:2586,distanceKm:6.29,avgPaceSec:411,title:"Step by step"}),
-    stravaSession({id:"strava-2026-07-28",completedAt:"2026-07-28T17:19:00+02:00",run:450,walk:60,sets:5,targetPaceSec:380,durationSec:2341,distanceKm:6.02,avgPaceSec:388,title:"Don't look at my heart rate"})
+    stravaSession({id:"strava-2026-07-26",completedAt:"2026-07-26T17:53:00+02:00",level:4,run:300,walk:60,sets:7,targetPaceSec:390,durationSec:2586,distanceKm:6.29,avgPaceSec:411,title:"Step by step"}),
+    stravaSession({id:"strava-2026-07-28",completedAt:"2026-07-28T17:19:00+02:00",level:5,run:450,walk:60,sets:5,targetPaceSec:380,durationSec:2341,distanceKm:6.02,avgPaceSec:388,title:"Don't look at my heart rate"})
   ];
   function normalizeSession(item){
     if(!item || typeof item!=="object") return null;
@@ -813,6 +959,8 @@
       runDistanceM:Number(item.runDistanceM)||0, walkDistanceM:Number(item.walkDistanceM)||0,
       avgRunPaceSec:Number(item.avgRunPaceSec)||0, avgPaceSec:Number(item.avgPaceSec)||0,
       paceKind:item.paceKind==="activity"?"activity":"run", measuredRunSec:Number(item.measuredRunSec)||0,
+      sessionKind:item.sessionKind==="custom"?"custom":"level",
+      level:Number.isFinite(Number(item.level))&&Number(item.level)>0?Math.round(Number(item.level)):null,
       source:String(item.source||""), sourceTitle:String(item.sourceTitle||"")
     };
     if(!session.completedAt || !Number.isFinite(session.run) || !Number.isFinite(session.walk) || !Number.isFinite(session.sets)) return null;
@@ -826,11 +974,28 @@
   }
   function loadHistory(){
     const raw=readJson(HISTORY_KEY,[]);
-    return (Array.isArray(raw)?raw:[]).map(normalizeSession).filter(Boolean)
-      .sort((a,b)=>new Date(b.completedAt)-new Date(a.completedAt));
+    const sessions=(Array.isArray(raw)?raw:[]).map(normalizeSession).filter(Boolean)
+      .sort((a,b)=>new Date(a.completedAt)-new Date(b.completedAt));
+    let highestLevel=0,lastLevel=0,lastKey="";
+    sessions.forEach(session=>{
+      if(session.sessionKind==="custom") return;
+      const key=`${session.run}|${session.walk}|${session.sets}`;
+      if(session.level){
+        highestLevel=Math.max(highestLevel,session.level);
+        lastLevel=session.level;
+      } else if(lastLevel && key===lastKey){
+        session.level=lastLevel;
+      } else {
+        session.level=++highestLevel;
+        lastLevel=session.level;
+      }
+      highestLevel=Math.max(highestLevel,session.level);
+      lastKey=key;
+    });
+    return sessions.sort((a,b)=>new Date(b.completedAt)-new Date(a.completedAt));
   }
   function restoreLatestWorkoutSettings(){
-    const latest=loadHistory()[0];
+    const latest=loadHistory().find(session=>session.sessionKind==="level");
     if(!latest) return false;
     cfg.run=latest.run;
     cfg.walk=latest.walk;
@@ -840,6 +1005,9 @@
     return true;
   }
   function recordSession(){
+    const context=levelContext();
+    const sessionKind=setupMode==="custom"?"custom":"level";
+    const level=sessionKind==="custom"?null:(setupMode==="levelup"&&context.hasLevel?context.currentLevel+1:context.currentLevel);
     const avgRunPaceSec=sesDist>0 && sesTime>0 ? sesTime/(sesDist/1000) : 0;
     const session={
       id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
@@ -850,21 +1018,19 @@
       walkDurationSec:cfg.sets*cfg.walk,
       totalDistanceM:Math.max(0,sesDist+walkDist),runDistanceM:Math.max(0,sesDist), walkDistanceM:Math.max(0,walkDist),
       avgRunPaceSec,avgPaceSec:avgRunPaceSec,paceKind:"run",measuredRunSec:Math.max(0,sesTime),
-      source:"Rehab Run Trainer",sourceTitle:""
+      sessionKind,level,source:"Rehab Run Trainer",sourceTitle:""
     };
     const history=[session,...loadHistory()].slice(0,250);
     writeJson(HISTORY_KEY,history);
     return session;
   }
   function groupHistory(sessions){
-    const groups=[];
-    sessions.forEach(session=>{
-      const key=`${session.run}|${session.walk}|${session.sets}`;
-      const last=groups[groups.length-1];
-      if(last && last.key===key) last.sessions.push(session);
-      else groups.push({key,run:session.run,walk:session.walk,sets:session.sets,sessions:[session]});
+    const byLevel=new Map();
+    sessions.filter(session=>session.sessionKind==="level").forEach(session=>{
+      if(!byLevel.has(session.level)) byLevel.set(session.level,{level:session.level,run:session.run,walk:session.walk,sets:session.sets,sessions:[]});
+      byLevel.get(session.level).sessions.push(session);
     });
-    return groups;
+    return [...byLevel.values()].sort((a,b)=>b.level-a.level);
   }
   function dateLabel(iso){
     const date=new Date(iso), today=new Date();
@@ -886,12 +1052,12 @@
       <div class="session-value"><b>${pace?mmss(pace):"—"}</b><span>${session.paceKind==="activity"?"/km":"/km run"}</span></div>
     </div>`;
   }
-  function groupMarkup(group,index,phase){
+  function groupMarkup(group,currentLevel){
     const paceValues=group.sessions.map(s=>s.paceSec).filter(Number.isFinite);
     const target=paceValues.length?paceValues[0]:0;
     return `<section class="workout-group">
       <div class="group-head">
-        <div class="group-kicker"><span>Phase ${phase}</span>${index===0?'<span class="current-label">Current</span>':''}</div>
+        <div class="group-kicker"><span>Level ${group.level}</span>${group.level===currentLevel?'<span class="current-label">Current</span>':''}</div>
         <div class="group-title"><span class="run-copy">${fmtLoose(group.run)} run</span> · <span class="walk-copy">${fmtLoose(group.walk)} walk</span> × ${group.sets}</div>
         <div class="group-meta">${group.sessions.length} ${group.sessions.length===1?"session":"sessions"}${target?` · ${fmtLoose(target)} /km target`:""}</div>
       </div>
@@ -901,7 +1067,7 @@
       </div>
     </section>`;
   }
-  function transitionMarkup(newer,older,newerPhase,olderPhase,isCurrentPosition){
+  function transitionMarkup(newer,older,isCurrentPosition){
     const oldRunTotal=older.run*older.sets, newRunTotal=newer.run*newer.sets;
     const intervalPct=older.run ? (newer.run-older.run)/older.run*100 : 0;
     const runningPct=oldRunTotal ? (newRunTotal-oldRunTotal)/oldRunTotal*100 : 0;
@@ -912,15 +1078,23 @@
     const distanceMetric=oldDistance&&newDistance
       ? `<div class="transition-metric"><span>Distance km</span><b>${(oldDistance/1000).toFixed(2)}–${(newDistance/1000).toFixed(2)}</b><small class="${deltaClass(distancePct)}">${signedPct(distancePct)}</small></div>`
       : `<div class="transition-metric"><span>Recovery</span><b>${fmtLoose(older.walk)}–${fmtLoose(newer.walk)}</b><small>walk interval</small></div>`;
-    return `<div class="transition${isCurrentPosition?' current-position':''}" aria-label="Progression from Phase ${olderPhase} to Phase ${newerPhase}">
+    return `<div class="transition${isCurrentPosition?' current-position':''}" aria-label="Progression from Level ${older.level} to Level ${newer.level}">
       <div class="transition-card">
-        <div class="transition-head"><span>Progression</span><b>Phase ${olderPhase} <i>→</i> Phase ${newerPhase}</b></div>
+        <div class="transition-head"><span>Progression</span><b>Level ${older.level} <i>→</i> Level ${newer.level}</b></div>
         <div class="transition-grid">
           <div class="transition-metric"><span>Run interval</span><b>${fmtLoose(older.run)}–${fmtLoose(newer.run)}</b><small class="${deltaClass(intervalPct)}">${signedPct(intervalPct)}</small></div>
           <div class="transition-metric"><span>Total run</span><b>${fmtDuration(oldRunTotal)}–${fmtDuration(newRunTotal)}</b><small class="${deltaClass(runningPct)}">${signedPct(runningPct)}</small></div>
           ${distanceMetric}
         </div>
       </div>
+    </div>`;
+  }
+  function otherSessionMarkup(session){
+    const date=dateLabel(session.completedAt),distance=sessionDistance(session);
+    return `<div class="other-row">
+      <div><b>${date.lead}</b><span>${date.detail}</span></div>
+      <div class="other-workout"><b>${fmtLoose(session.run)} / ${fmtLoose(session.walk)} × ${session.sets}</b><span>${fmtDuration(session.totalDurationSec)} total</span></div>
+      <div class="other-distance"><b>${distance?(distance/1000).toFixed(2):"—"}</b><span>km</span></div>
     </div>`;
   }
   function renderHistory(){
@@ -933,13 +1107,15 @@
     const totalWalk=sessions.reduce((sum,s)=>sum+s.walkDistanceM,0);
     const totalTime=sessions.reduce((sum,s)=>sum+s.totalDurationSec,0);
     const groups=groupHistory(sessions);
+    const customSessions=sessions.filter(session=>session.sessionKind==="custom");
+    const currentLevel=groups[0]?.level||0;
     let groupHtml="";
     groups.forEach((group,index)=>{
-      const phase=groups.length-index;
-      groupHtml+=groupMarkup(group,index,phase);
-      if(groups[index+1]) groupHtml+=transitionMarkup(group,groups[index+1],phase,phase-1,index===0);
+      groupHtml+=groupMarkup(group,currentLevel);
+      if(groups[index+1]) groupHtml+=transitionMarkup(group,groups[index+1],group.level===currentLevel);
     });
-    content.innerHTML=`<div class="history-summary"><span><b>${sessions.length}</b> sessions · <b>${fmtKm(totalRun)}</b> running</span><span><b>${fmtKm(totalWalk)}</b> walking · <b>${fmtDuration(totalTime)}</b> active</span></div><div class="history-groups">${groupHtml}</div><p class="history-note">History stays only on this device.</p>`;
+    const customHtml=customSessions.length?`<section class="other-history"><div class="other-head"><b>Other sessions</b><span>Custom workouts outside level progression</span></div><div>${customSessions.map(otherSessionMarkup).join("")}</div></section>`:"";
+    content.innerHTML=`<div class="history-summary"><span><b>${sessions.length}</b> sessions · <b>${fmtKm(totalRun)}</b> running</span><span><b>${fmtKm(totalWalk)}</b> walking · <b>${fmtDuration(totalTime)}</b> active</span></div><div class="history-groups">${groupHtml}</div>${customHtml}<p class="history-note">History stays only on this device.</p>`;
   }
   function showHistory(){
     historyReturnView=doneView.classList.contains('hidden')?'setup':'done';
@@ -954,7 +1130,7 @@
     if(historyReturnView==='done'){
       doneView.classList.remove('hidden'); mainBtn.textContent='Set up next run'; doneHistoryBtn.classList.remove('hidden');
     } else {
-      setupView.classList.remove('hidden'); mainBtn.textContent='Start'; doneHistoryBtn.classList.add('hidden');
+      setupView.classList.remove('hidden'); doneHistoryBtn.classList.add('hidden'); refreshSetup();
     }
   }
   function renderImport(){
@@ -974,7 +1150,7 @@
     [...REHAB_BACKFILL,...POST_REHAB_BACKFILL].forEach(session=>merged.set(session.id,session));
     writeJson(HISTORY_KEY,[...merged.values()]);
     restoreLatestWorkoutSettings();
-    refreshSetup();
+    setSetupMode("another",false);
     const status=$("importStatus");
     status.textContent="Imported 11 sessions into this device. You can safely run this import again without creating duplicates.";
     status.classList.remove('hidden');
@@ -1000,6 +1176,7 @@
     doneHistoryBtn.classList.add('hidden');
     $("historyBtn").classList.add('hidden');
     mainBtn.textContent = 'Pause';
+    mainBtn.disabled = false;
     mainBtn.classList.add('paused');
     ensureAudio(); requestWake(); startGeo();
     beginSegment();
@@ -1134,10 +1311,9 @@
     resetBtn.classList.add('hidden');
     doneHistoryBtn.classList.add('hidden');
     $("historyBtn").classList.remove('hidden');
-    mainBtn.textContent='Start';
     mainBtn.classList.remove('paused');
     restoreLatestWorkoutSettings();
-    refreshSetup();
+    setSetupMode("another",false);
   }
 
   // ---------- Buttons ----------
@@ -1159,7 +1335,7 @@
   $("importProgressBtn").addEventListener('click',showHistory);
 
   restoreLatestWorkoutSettings();
-  refreshSetup();
+  setSetupMode("another",false);
   if(new URLSearchParams(location.search).get('backfill')==='joel-rehab-2026') showImport();
 })();
 </script>
