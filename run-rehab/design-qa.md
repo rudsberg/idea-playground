@@ -20,7 +20,7 @@
 
 - Every chronological workout group is inferred as Phase 1, Phase 2, and so on. The latest group adds a quiet Current label.
 - Each connector is now explicitly labeled Progression and shows the direction, for example `Phase 4 → Phase 5`, before the run interval, total running, and distance changes.
-- A continuous gradient rail and a compact inset comparison card keep the visual relationship between neighboring phase cards without consuming excessive vertical space.
+- A battery-like rail charges from deep green at the older phase to a bright, softly glowing endpoint at the newer phase. The compact inset comparison card keeps the relationship clear without consuming excessive vertical space.
 - Group padding, radii, title sizing, table column rhythm, row height, and numeric alignment were normalized for a clearer hierarchy.
 - Estimate badges, estimate-specific model fields, import copy, and history copy were removed.
 
