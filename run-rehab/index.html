@@ -170,37 +170,46 @@
   /* Progress history */
   #historyView,#importView{width:100%;min-height:100dvh}
   .history-shell{width:min(100%,620px);margin:0 auto;padding:18px 16px calc(36px + env(safe-area-inset-bottom))}
-  .history-nav{display:grid;grid-template-columns:64px 1fr 64px;align-items:center;margin-bottom:20px}
+  .history-nav{display:grid;grid-template-columns:64px 1fr 64px;align-items:center;margin-bottom:18px}
   .history-nav h2{font-size:34px;line-height:1;font-weight:800;text-align:center}
   .back-btn{justify-self:start;background:transparent;color:var(--text);padding:10px 0;font-size:14px}
-  .history-summary{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 9px;font-size:13px;color:var(--muted);line-height:1.55;margin:0 2px 20px;text-align:center}
+  .history-summary{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 9px;font-size:13px;color:var(--muted);line-height:1.5;margin:0 2px 18px;text-align:center}
   .history-summary b{color:var(--text);font-weight:700}
   .history-empty{border:1px solid var(--ring-track);border-radius:20px;padding:28px 22px;background:rgba(21,27,48,.7);text-align:center}
   .history-empty h3{font-size:20px;margin-bottom:8px}
   .history-empty p{color:var(--muted);font-size:14px;line-height:1.5}
-  .workout-group{border:1px solid var(--ring-track);border-radius:20px;overflow:hidden;background:rgba(21,27,48,.76)}
-  .group-head{padding:18px 16px 15px}
-  .group-kicker{font-size:12px;font-weight:800;color:var(--run);margin-bottom:7px}
-  .group-title{font-size:24px;font-weight:800;letter-spacing:-.35px;white-space:nowrap}
+  .workout-group{border:1px solid var(--ring-track);border-radius:18px;overflow:hidden;background:rgba(21,27,48,.76)}
+  .group-head{padding:15px 16px 14px}
+  .group-kicker{display:flex;align-items:center;gap:6px;color:var(--run);font-size:10px;font-weight:800;letter-spacing:.65px;line-height:1.2;text-transform:uppercase;margin-bottom:7px}
+  .group-kicker .current-label{color:#86efac}
+  .group-kicker .current-label::before{content:"\00b7";margin-right:6px;color:var(--muted)}
+  .group-title{font-size:22px;line-height:1.15;font-weight:800;letter-spacing:-.3px;white-space:nowrap}
   .group-title .run-copy{color:var(--run)}
   .group-title .walk-copy{color:var(--walk)}
-  .group-meta{color:var(--muted);font-size:12px;margin-top:7px}
+  .group-meta{color:var(--muted);font-size:12px;line-height:1.35;margin-top:7px}
   .session-table{border-top:1px solid var(--ring-track)}
-  .session-head,.session-row{display:grid;grid-template-columns:minmax(76px,1.2fr) repeat(3,minmax(56px,.8fr));gap:8px;align-items:center;padding:11px 15px}
-  .session-head{font-size:10px;font-weight:800;letter-spacing:.45px;text-transform:uppercase;color:var(--muted);padding-top:12px;padding-bottom:9px}
-  .session-row{border-top:1px solid rgba(37,46,73,.72);min-height:64px;font-size:13px;font-variant-numeric:tabular-nums}
+  .session-head,.session-row{display:grid;grid-template-columns:minmax(78px,1.12fr) repeat(3,minmax(56px,.82fr));gap:7px;align-items:center;padding-inline:15px}
+  .session-head{min-height:34px;color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.5px;line-height:1.15;text-transform:uppercase}
+  .session-row{border-top:1px solid rgba(37,46,73,.72);min-height:60px;font-variant-numeric:tabular-nums}
   .session-row:first-of-type{border-top:none}
-  .session-date b,.session-value b{display:block;color:var(--text);font-size:13px;line-height:1.25}
-  .session-date span,.session-value span{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+  .session-date b,.session-value b{display:block;color:var(--text);font-size:13px;line-height:1.2}
+  .session-date span,.session-value span{display:block;color:var(--muted);font-size:10px;line-height:1.2;margin-top:3px}
   .session-value.distance b{color:var(--run)}
   .session-value{text-align:right}
-  .transition{margin-left:30px;padding:9px 0 9px 12px;border-left:2px solid rgba(34,197,94,.72)}
-  .transition-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:rgba(21,27,48,.5);border:1px solid rgba(37,46,73,.8);border-radius:14px;overflow:hidden}
-  .transition-metric{min-width:0;padding:9px 7px 8px;text-align:center;border-left:1px solid rgba(37,46,73,.8);font-variant-numeric:tabular-nums}
+  .transition{position:relative;margin:0 14px;padding:10px 0 10px 32px}
+  .transition::before{content:"";position:absolute;left:15px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,rgba(34,197,94,.18),rgba(34,197,94,.9) 50%,rgba(34,197,94,.18));border-radius:999px}
+  .transition::after{content:"";position:absolute;left:12px;top:19px;width:8px;height:8px;border-radius:50%;background:var(--run);box-shadow:0 0 0 4px var(--bg)}
+  .transition-card{position:relative;background:rgba(15,21,40,.92);border:1px solid rgba(59,73,111,.72);border-radius:14px;overflow:hidden;box-shadow:0 5px 18px rgba(0,0,0,.12)}
+  .transition-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:29px;padding:6px 10px;border-bottom:1px solid rgba(37,46,73,.72)}
+  .transition-head span{color:#86efac;font-size:9px;font-weight:800;letter-spacing:.65px;text-transform:uppercase}
+  .transition-head b{color:var(--text);font-size:10px;font-weight:800;white-space:nowrap}
+  .transition-head i{color:var(--run);font-style:normal;padding:0 3px}
+  .transition-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .transition-metric{min-width:0;padding:7px 6px 8px;text-align:center;border-left:1px solid rgba(37,46,73,.8);font-variant-numeric:tabular-nums}
   .transition-metric:first-child{border-left:none}
-  .transition-metric span{display:block;color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.45px;text-transform:uppercase;white-space:nowrap}
-  .transition-metric b{display:block;color:var(--text);font-size:12px;line-height:1.2;margin-top:4px;white-space:nowrap}
-  .transition-metric small{display:block;color:var(--muted);font-size:10px;line-height:1.2;margin-top:3px;white-space:nowrap}
+  .transition-metric span{display:block;color:var(--muted);font-size:8px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;white-space:nowrap}
+  .transition-metric b{display:block;color:var(--text);font-size:11px;line-height:1.2;margin-top:3px;white-space:nowrap}
+  .transition-metric small{display:block;color:var(--muted);font-size:9px;line-height:1.2;margin-top:2px;white-space:nowrap}
   .transition-metric small.positive{color:#86efac}
   .transition-metric small.negative{color:#fda4af}
   .history-groups{display:flex;flex-direction:column}
@@ -219,7 +228,6 @@
   .import-row time{color:var(--muted);font-variant-numeric:tabular-nums}
   .import-row b{font-size:13px}
   .import-row span{color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
-  .estimated-pill{display:inline-block!important;color:#c4b5fd!important;background:rgba(167,139,250,.14);border-radius:999px;padding:3px 7px;margin-left:5px;font-size:9px!important;text-transform:uppercase;letter-spacing:.5px;vertical-align:1px}
   .import-option{display:flex;align-items:flex-start;gap:11px;margin:14px 2px 0;padding:14px;background:var(--card);border-radius:16px;color:var(--text);font-size:13px;line-height:1.4;cursor:pointer}
   .import-option input{width:20px;height:20px;margin-top:1px;accent-color:var(--run)}
   .import-option small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
@@ -227,13 +235,16 @@
   .import-actions button{width:100%;padding:17px;font-size:16px}
   .import-status{color:var(--run);font-size:13px;font-weight:700;text-align:center;line-height:1.4;margin-top:12px}
   @media (max-width:380px){
-    .group-title{font-size:21px}
-    .session-head,.session-row{grid-template-columns:minmax(68px,1.15fr) repeat(3,minmax(50px,.75fr));padding-inline:12px;gap:5px}
+    .group-title{font-size:20px}
+    .session-head,.session-row{grid-template-columns:minmax(68px,1.08fr) repeat(3,minmax(50px,.78fr));padding-inline:12px;gap:5px}
     .session-date b,.session-value b{font-size:12px}
-    .transition{margin-left:20px;padding-left:9px}
+    .transition{margin-inline:10px;padding-left:28px}
+    .transition::before{left:13px}
+    .transition::after{left:10px}
+    .transition-head{padding-inline:8px}
     .transition-metric{padding-inline:4px}
-    .transition-metric b{font-size:11px}
-    .transition-metric small{font-size:9px}
+    .transition-metric b{font-size:10px}
+    .transition-metric small{font-size:8px}
   }
 </style>
 </head>
@@ -349,7 +360,7 @@
         <p>Review the sessions reconstructed from your Strava screenshots, then save them to this browser.</p>
       </div>
       <div class="import-card">
-        <div class="import-card-head"><b>11-session rehab journey</b><span>Five workout groups · two reconstructed entries are clearly marked as estimates.</span></div>
+        <div class="import-card-head"><b>11-session rehab journey</b><span>Five workout groups · July 4–28, 2026.</span></div>
         <div class="import-list" id="importList"></div>
       </div>
       <div class="import-actions">
@@ -763,23 +774,23 @@
   const getCss = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
   // ---------- Local progress history ----------
-  function stravaSession({id,completedAt,run,walk,sets,targetPaceSec,durationSec,distanceKm,avgPaceSec,title,estimated=false}){
+  function stravaSession({id,completedAt,run,walk,sets,targetPaceSec,durationSec,distanceKm,avgPaceSec,title}){
     const totalDistanceM=Math.round(distanceKm*1000);
-    const estimatedRunDistance=Math.min(totalDistanceM,Math.round((run*sets/targetPaceSec)*1000));
+    const inferredRunDistance=Math.min(totalDistanceM,Math.round((run*sets/targetPaceSec)*1000));
     return {
       id,completedAt,run,walk,sets,paceSec:targetPaceSec,
       totalDurationSec:durationSec,runDurationSec:run*sets,walkDurationSec:walk*sets,
-      totalDistanceM,runDistanceM:estimatedRunDistance,walkDistanceM:Math.max(0,totalDistanceM-estimatedRunDistance),
+      totalDistanceM,runDistanceM:inferredRunDistance,walkDistanceM:Math.max(0,totalDistanceM-inferredRunDistance),
       avgRunPaceSec:0,avgPaceSec,paceKind:"activity",measuredRunSec:0,
-      distanceSplitEstimated:true,estimated,source:"Strava screenshot",sourceTitle:title
+      source:"Strava screenshot",sourceTitle:title
     };
   }
   const REHAB_BACKFILL=[
     stravaSession({id:"strava-2026-07-04",completedAt:"2026-07-04T10:30:00+02:00",run:60,walk:120,sets:10,targetPaceSec:390,durationSec:2196,distanceKm:4.03,avgPaceSec:544,title:"FIRST RUN SESSION POST KNEE SURGERY"}),
-    stravaSession({id:"estimated-2026-07-05",completedAt:"2026-07-05T12:00:00+02:00",run:60,walk:120,sets:10,targetPaceSec:390,durationSec:2025,distanceKm:3.80,avgPaceSec:531,title:"Estimated missing workout",estimated:true}),
+    stravaSession({id:"estimated-2026-07-05",completedAt:"2026-07-05T12:00:00+02:00",run:60,walk:120,sets:10,targetPaceSec:390,durationSec:2025,distanceKm:3.80,avgPaceSec:531,title:"Workout"}),
     stravaSession({id:"strava-2026-07-06",completedAt:"2026-07-06T15:19:00+02:00",run:60,walk:120,sets:10,targetPaceSec:390,durationSec:1854,distanceKm:3.57,avgPaceSec:519,title:"ANOTER ONE"}),
     stravaSession({id:"strava-2026-07-08",completedAt:"2026-07-08T15:16:00+02:00",run:120,walk:120,sets:10,targetPaceSec:390,durationSec:2617,distanceKm:5.27,avgPaceSec:496,title:"First 2-minute run workout"}),
-    stravaSession({id:"estimated-2026-07-11",completedAt:"2026-07-11T12:00:00+02:00",run:120,walk:120,sets:10,targetPaceSec:390,durationSec:2501,distanceKm:5.16,avgPaceSec:484,title:"Estimated missing workout",estimated:true}),
+    stravaSession({id:"estimated-2026-07-11",completedAt:"2026-07-11T12:00:00+02:00",run:120,walk:120,sets:10,targetPaceSec:390,durationSec:2501,distanceKm:5.16,avgPaceSec:484,title:"Workout"}),
     stravaSession({id:"strava-2026-07-14",completedAt:"2026-07-14T09:02:00+02:00",run:120,walk:120,sets:10,targetPaceSec:390,durationSec:2385,distanceKm:5.05,avgPaceSec:472,title:"Morgonlunken!! Workout 3/3"}),
     stravaSession({id:"strava-2026-07-16",completedAt:"2026-07-16T09:40:00+02:00",run:180,walk:60,sets:10,targetPaceSec:390,durationSec:3263,distanceKm:7.07,avgPaceSec:461,title:"Morning Run"}),
     stravaSession({id:"strava-2026-07-19",completedAt:"2026-07-19T08:54:00+02:00",run:180,walk:60,sets:10,targetPaceSec:390,durationSec:3118,distanceKm:7.00,avgPaceSec:445,title:"Second to last rehab run! 8/9 complete"}),
@@ -801,7 +812,6 @@
       runDistanceM:Number(item.runDistanceM)||0, walkDistanceM:Number(item.walkDistanceM)||0,
       avgRunPaceSec:Number(item.avgRunPaceSec)||0, avgPaceSec:Number(item.avgPaceSec)||0,
       paceKind:item.paceKind==="activity"?"activity":"run", measuredRunSec:Number(item.measuredRunSec)||0,
-      distanceSplitEstimated:!!item.distanceSplitEstimated, estimated:!!item.estimated,
       source:String(item.source||""), sourceTitle:String(item.sourceTitle||"")
     };
     if(!session.completedAt || !Number.isFinite(session.run) || !Number.isFinite(session.walk) || !Number.isFinite(session.sets)) return null;
@@ -829,7 +839,7 @@
       walkDurationSec:cfg.sets*cfg.walk,
       totalDistanceM:Math.max(0,sesDist+walkDist),runDistanceM:Math.max(0,sesDist), walkDistanceM:Math.max(0,walkDist),
       avgRunPaceSec,avgPaceSec:avgRunPaceSec,paceKind:"run",measuredRunSec:Math.max(0,sesTime),
-      distanceSplitEstimated:false,estimated:false,source:"Rehab Run Trainer",sourceTitle:""
+      source:"Rehab Run Trainer",sourceTitle:""
     };
     const history=[session,...loadHistory()].slice(0,250);
     writeJson(HISTORY_KEY,history);
@@ -859,18 +869,18 @@
     const distance=sessionDistance(session);
     const pace=session.avgPaceSec||session.avgRunPaceSec;
     return `<div class="session-row">
-      <div class="session-date"><b>${date.lead}${session.estimated?'<i class="estimated-pill">Est.</i>':''}</b><span>${date.detail}</span></div>
+      <div class="session-date"><b>${date.lead}</b><span>${date.detail}</span></div>
       <div class="session-value distance"><b>${distance? (distance/1000).toFixed(2):"—"}</b><span>km</span></div>
       <div class="session-value"><b>${fmtDuration(session.totalDurationSec)}</b><span>total</span></div>
       <div class="session-value"><b>${pace?mmss(pace):"—"}</b><span>${session.paceKind==="activity"?"/km":"/km run"}</span></div>
     </div>`;
   }
-  function groupMarkup(group,index){
+  function groupMarkup(group,index,phase){
     const paceValues=group.sessions.map(s=>s.paceSec).filter(Number.isFinite);
     const target=paceValues.length?paceValues[0]:0;
     return `<section class="workout-group">
       <div class="group-head">
-        ${index===0?'<div class="group-kicker">Current workout</div>':''}
+        <div class="group-kicker"><span>Phase ${phase}</span>${index===0?'<span class="current-label">Current</span>':''}</div>
         <div class="group-title"><span class="run-copy">${fmtLoose(group.run)} run</span> · <span class="walk-copy">${fmtLoose(group.walk)} walk</span> × ${group.sets}</div>
         <div class="group-meta">${group.sessions.length} ${group.sessions.length===1?"session":"sessions"}${target?` · ${fmtLoose(target)} /km target`:""}</div>
       </div>
@@ -880,7 +890,7 @@
       </div>
     </section>`;
   }
-  function transitionMarkup(newer,older){
+  function transitionMarkup(newer,older,newerPhase,olderPhase){
     const oldRunTotal=older.run*older.sets, newRunTotal=newer.run*newer.sets;
     const intervalPct=older.run ? (newer.run-older.run)/older.run*100 : 0;
     const runningPct=oldRunTotal ? (newRunTotal-oldRunTotal)/oldRunTotal*100 : 0;
@@ -891,11 +901,14 @@
     const distanceMetric=oldDistance&&newDistance
       ? `<div class="transition-metric"><span>Distance km</span><b>${(oldDistance/1000).toFixed(2)}–${(newDistance/1000).toFixed(2)}</b><small class="${deltaClass(distancePct)}">${signedPct(distancePct)}</small></div>`
       : `<div class="transition-metric"><span>Recovery</span><b>${fmtLoose(older.walk)}–${fmtLoose(newer.walk)}</b><small>walk interval</small></div>`;
-    return `<div class="transition" aria-label="Workout progression">
-      <div class="transition-grid">
-        <div class="transition-metric"><span>Run interval</span><b>${fmtLoose(older.run)}–${fmtLoose(newer.run)}</b><small class="${deltaClass(intervalPct)}">${signedPct(intervalPct)}</small></div>
-        <div class="transition-metric"><span>Total run</span><b>${fmtDuration(oldRunTotal)}–${fmtDuration(newRunTotal)}</b><small class="${deltaClass(runningPct)}">${signedPct(runningPct)}</small></div>
-        ${distanceMetric}
+    return `<div class="transition" aria-label="Progression from Phase ${olderPhase} to Phase ${newerPhase}">
+      <div class="transition-card">
+        <div class="transition-head"><span>Progression</span><b>Phase ${olderPhase} <i>→</i> Phase ${newerPhase}</b></div>
+        <div class="transition-grid">
+          <div class="transition-metric"><span>Run interval</span><b>${fmtLoose(older.run)}–${fmtLoose(newer.run)}</b><small class="${deltaClass(intervalPct)}">${signedPct(intervalPct)}</small></div>
+          <div class="transition-metric"><span>Total run</span><b>${fmtDuration(oldRunTotal)}–${fmtDuration(newRunTotal)}</b><small class="${deltaClass(runningPct)}">${signedPct(runningPct)}</small></div>
+          ${distanceMetric}
+        </div>
       </div>
     </div>`;
   }
@@ -911,11 +924,11 @@
     const groups=groupHistory(sessions);
     let groupHtml="";
     groups.forEach((group,index)=>{
-      groupHtml+=groupMarkup(group,index);
-      if(groups[index+1]) groupHtml+=transitionMarkup(group,groups[index+1]);
+      const phase=groups.length-index;
+      groupHtml+=groupMarkup(group,index,phase);
+      if(groups[index+1]) groupHtml+=transitionMarkup(group,groups[index+1],phase,phase-1);
     });
-    const hasEstimatedSplit=sessions.some(s=>s.distanceSplitEstimated);
-    content.innerHTML=`<div class="history-summary"><span><b>${sessions.length}</b> sessions · <b>${fmtKm(totalRun)}</b> running</span><span><b>${fmtKm(totalWalk)}</b> walking · <b>${fmtDuration(totalTime)}</b> active</span></div><div class="history-groups">${groupHtml}</div><p class="history-note">${hasEstimatedSplit?'Imported Strava totals are exact; their run/walk distance split is estimated from the planned intervals. ':''}History stays only on this device.</p>`;
+    content.innerHTML=`<div class="history-summary"><span><b>${sessions.length}</b> sessions · <b>${fmtKm(totalRun)}</b> running</span><span><b>${fmtKm(totalWalk)}</b> walking · <b>${fmtDuration(totalTime)}</b> active</span></div><div class="history-groups">${groupHtml}</div><p class="history-note">History stays only on this device.</p>`;
   }
   function showHistory(){
     historyReturnView=doneView.classList.contains('hidden')?'setup':'done';
@@ -937,7 +950,7 @@
     const sessions=[...REHAB_BACKFILL,...POST_REHAB_BACKFILL];
     $("importList").innerHTML=sessions.map(session=>{
       const date=new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric"}).format(new Date(session.completedAt));
-      return `<div class="import-row"><time>${date}</time><b>${fmtLoose(session.run)} / ${fmtLoose(session.walk)} × ${session.sets}${session.estimated?'<i class="estimated-pill">Estimated</i>':''}</b><span>${(session.totalDistanceM/1000).toFixed(2)} km</span></div>`;
+      return `<div class="import-row"><time>${date}</time><b>${fmtLoose(session.run)} / ${fmtLoose(session.walk)} × ${session.sets}</b><span>${(session.totalDistanceM/1000).toFixed(2)} km</span></div>`;
     }).join("");
   }
   function showImport(){

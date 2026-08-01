@@ -2,71 +2,49 @@
 
 ## Comparison target
 
-- Source visual truth: `qa/source-option-2.png`
-- Implementation screenshot: `qa/progress-390x844-pass2.png`
-- User feedback screenshot: `qa/feedback-before-compact-transition.jpg`
-- Compact transition screenshot: `qa/compact-progress-390x844.png`
-- Combined comparison: `qa/comparison-pass2.png`
-- Source pixels: 853 × 1844, normalized by browser rendering to 390 × 844.
-- Implementation pixels: 390 × 844.
-- CSS viewport: 390 × 844 at device scale factor 1.
-- State: progress history with three sessions in each of two workout groups and one progression transition.
+- Audit baseline: `qa/01-current-progress-audit.png`
+- Revised implementation: `qa/02-revised-progress.png`
+- Narrow responsive check: `qa/revised-320.png`
+- Wide responsive check: `qa/revised-768.png`
+- CSS viewports: 320, 390, and 768 × 844 at device scale factor 1.
+- State: imported 11-session history, rendered newest-first across five inferred phases.
 
-## Full-view comparison evidence
+## Audit findings
 
-The source and implementation were rendered together in `qa/comparison-pass2.png`. Both use the same dark navy mobile surface, strong green/blue interval heading, compact table rows, current-workout emphasis, and a longer stepped transition between workout groups. The implementation intentionally keeps the requested aggregate running and walking totals above the latest group and uses text-first transition steps so the dynamic percentages remain legible.
+- The previous comparison band looked like a detached statistics card. It did not name the two workout groups it compared, so its role was ambiguous.
+- Group headings were visually dominant while table labels and session values were comparatively cramped.
+- The green connector indicated sequence but not direction or meaning.
+- Reconstructed sessions carried estimate badges even though the product has no estimate state or workflow.
 
-No actionable P0, P1, or P2 mismatch remains. The implementation is slightly more vertically spacious than the concept and therefore scrolls, which is acceptable for variable-length real history and preserves readable tap/text sizing.
+## Implemented design response
 
-## Focused region comparison evidence
+- Every chronological workout group is inferred as Phase 1, Phase 2, and so on. The latest group adds a quiet Current label.
+- Each connector is now explicitly labeled Progression and shows the direction, for example `Phase 4 → Phase 5`, before the run interval, total running, and distance changes.
+- A continuous gradient rail and a compact inset comparison card keep the visual relationship between neighboring phase cards without consuming excessive vertical space.
+- Group padding, radii, title sizing, table column rhythm, row height, and numeric alignment were normalized for a clearer hierarchy.
+- Estimate badges, estimate-specific model fields, import copy, and history copy were removed.
 
-- Header and first group: the visual hierarchy, weights, colors, border treatment, and four-column session table match the selected direction.
-- Progression transition: the implementation preserves the stepped offsets, green connecting rail, purple percentage emphasis, and longer separation between workout groups.
-- Previous group: heading and table structure repeat consistently and remain readable below the fold.
+## Visual QA result
 
-## Findings
+The revised 390px rendering keeps the five-phase history within a 1,944px document, compared with 1,870px for the ambiguous unlabeled version. The 74px increase buys explicit phase-to-phase comprehension while remaining substantially more compact than the original 2,321px stepped layout. No horizontal overflow, clipping, overlap, or unreadable wrapping appears at 320px, 390px, or 768px.
 
-No P0/P1/P2 findings.
+No actionable P0, P1, or P2 visual issue remains.
 
 ## Required fidelity surfaces
 
-- Fonts and typography: system sans-serif matches the source's mobile UI character; bold tabular numerals and compact muted labels preserve the hierarchy without clipping.
-- Spacing and layout rhythm: 16px mobile gutters, 20px group radii, compact table rows, and the extended transition gap match the source intent. Dynamic history scrolls vertically without horizontal overflow.
-- Colors and visual tokens: `#0b1020`, `#151b30`, `#22c55e`, `#38bdf8`, `#a78bfa`, near-white, and muted blue-gray map directly to the selected concept.
-- Image quality and asset fidelity: the screen requires no raster imagery. The source's illustrative icons were omitted in favor of dynamic text content; no placeholder images or fake image assets are present.
-- Copy and content: phase terminology is absent; current workout, newest-first sessions, aggregate distances, and progression comparisons are coherent and populated from stored workout data.
-- Accessibility and responsiveness: native buttons remain keyboard/touch accessible; history has no horizontal overflow at 320px, 390px, or 768px; live halfway feedback uses a status region.
+- Typography: compact system sans-serif, 20–22px workout titles, 10px phase labels, 13px row values, and tabular numerals maintain a clear hierarchy.
+- Spacing: 16px page gutters, 14–16px group interiors, 60px session rows, and 10px progression gaps follow a consistent compact rhythm.
+- Color: green communicates run/progression, blue communicates walking, and muted blue-gray supports secondary labels without competing with the data.
+- Responsiveness: body width equals viewport width at 320px, 390px, and 768px; the history column remains capped at 620px.
+- Accessibility: native navigation buttons remain keyboard/touch accessible, and every progression bridge has a descriptive `aria-label` naming both phases.
 
-## Primary interactions tested
+## Interaction and regression coverage
 
-- Open progress from setup and return with Back.
-- Open the private backfill route, review 11 reconstructed Strava entries, import them idempotently, and render five workout groups newest-first.
-- Preserve two clearly labeled estimated entries while keeping the screenshot-derived dates, total distances, durations, and average activity paces.
-- Restore last-used run, walk, set, and tempo values after reload.
-- Render two automatically grouped workout chapters newest-first.
-- Calculate +100% run interval and +60% total running transitions.
-- Announce and display the halfway turn-back cue exactly once.
-- Apply the ±20 seconds/km pace zone.
-- Complete the existing real-time GPS warm-up, dropout, pace, and finish-summary flow.
-- Browser console and page errors: none during the visual and responsive checks.
-
-## Responsive evidence
-
-- 320 × 844: document width 320, no horizontal overflow.
-- 390 × 844: document width 390, no horizontal overflow.
-- 768 × 844: document width 768, no horizontal overflow; content remains capped to a readable column.
-
-## Comparison history
-
-- Initial pass: browser evidence was unavailable, so QA was blocked.
-- Pass 1: functional screenshot captured; aggregate copy wrapped with an orphaned final word.
-- Fix: aggregate content was split into two balanced semantic spans with responsive wrapping.
-- Pass 2: combined source/implementation comparison found no actionable P0/P1/P2 issues; responsive and interaction checks passed with no browser errors.
-- Backfill pass: the 390 × 844 import and five-group history states were captured with no horizontal overflow or browser errors. All 11 sessions and both estimated markers rendered correctly.
-- Compact-transition pass: user evidence showed the staggered transition consuming too much vertical space. The transition was rebuilt as one 80px horizontal band with three equal metrics and a quiet 2px connector. The five-group document height fell from 2321px to 1870px, with no horizontal overflow or browser errors. The focused regression suite passed.
-
-## Follow-up polish
-
-- [P3] A future icon-library pass could replace the textual Back control and add the concept's decorative transition icons. This is non-blocking and does not affect comprehension or use.
+- Phase numbering is inferred from oldest to newest while the page remains newest-first.
+- Matching workouts continue to group automatically.
+- Progression percentages still calculate run interval, total running, and distance changes.
+- The private 11-session backfill remains idempotent and renders five phases.
+- No estimate label appears in import or history views, including previously stored records that contain the old field.
+- Setup remains phase-free, last-used settings persist, the ±20 seconds/km pace zone remains active, and the halfway cue still fires once.
 
 final result: passed

@@ -203,6 +203,9 @@ test('progress history groups matching workouts and shows calculated progression
   await expect(page.locator('.workout-group')).toHaveCount(2);
   await expect(page.locator('.workout-group').first()).toContainText('2:00 run');
   await expect(page.locator('.workout-group').last()).toContainText('1:00 run');
+  await expect(page.locator('.workout-group').first().locator('.group-kicker')).toHaveText(/Phase 2\s*Current/);
+  await expect(page.locator('.workout-group').last().locator('.group-kicker')).toHaveText('Phase 1');
+  await expect(page.locator('.transition')).toHaveAttribute('aria-label', 'Progression from Phase 1 to Phase 2');
   await expect(page.locator('.transition')).toContainText('Run interval');
   await expect(page.locator('.transition')).toContainText('+100%');
   await expect(page.locator('.transition')).toContainText('Total run');
@@ -233,7 +236,7 @@ test('private backfill imports the Strava journey into five workout groups witho
   await page.goto(importUrl);
   await expect(page.locator('#importView')).toBeVisible();
   await expect(page.locator('.import-row')).toHaveCount(11);
-  await expect(page.locator('.import-row .estimated-pill')).toHaveCount(2);
+  await expect(page.locator('#importList')).not.toContainText(/estimated/i);
 
   await page.click('#importHistoryBtn');
   await expect(page.locator('#importStatus')).toContainText('Imported 11 sessions');
@@ -241,8 +244,12 @@ test('private backfill imports the Strava journey into five workout groups witho
   await expect(page.locator('.workout-group')).toHaveCount(5);
   await expect(page.locator('.workout-group').first()).toContainText('7:30 run');
   await expect(page.locator('.workout-group').last()).toContainText('1:00 run');
+  await expect(page.locator('.workout-group').first().locator('.group-kicker')).toContainText('Phase 5');
+  await expect(page.locator('.workout-group').last().locator('.group-kicker')).toHaveText('Phase 1');
+  await expect(page.locator('.transition')).toHaveCount(4);
+  await expect(page.locator('.transition').first()).toHaveAttribute('aria-label', 'Progression from Phase 4 to Phase 5');
   await expect(page.locator('.session-row')).toHaveCount(11);
-  await expect(page.locator('.session-row .estimated-pill')).toHaveCount(2);
+  await expect(page.locator('#historyContent')).not.toContainText(/estimated|est\./i);
 
   await page.goto(importUrl);
   await page.click('#importHistoryBtn');
