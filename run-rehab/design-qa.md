@@ -8,6 +8,8 @@
 - Custom-session state: `qa/08-custom-session-390.png`
 - Updated progress screen: `qa/09-level-progress-390.png`
 - Narrow responsive pass: `qa/11-next-workout-320-pass2.png`
+- Pace-only Level-up state: `qa/12-pace-only-level-up-390.png` and `qa/12-pace-only-level-up-320.png`
+- Single-row target-pace progression: `qa/13-target-pace-progress-390.png` and `qa/13-target-pace-progress-320.png`
 - Combined source/implementation evidence: `qa/10-level-picker-comparison.png`
 - Source and implementation: 390 × 844 pixels at device scale factor 1.
 
@@ -23,8 +25,8 @@ The hierarchy now reads in the required order: current Level context, next-sessi
 
 ## Focused-state evidence
 
-- Another session: run, walk, and set controls are visibly locked while tempo remains adjustable; the button reads `Start Level 5`.
-- Level up: the selected state is clear, structural controls unlock, and the compact comparison shows live run-interval and total-running percentages. Start remains disabled until the Level recipe changes.
+- Another session: run, walk, sets, and target pace are visibly locked as one Level recipe; the button reads `Start Level 5`.
+- Level up: the selected state is clear, all recipe controls unlock, and the compact comparison shows live run-interval, total-running, and target-speed percentages. A pace-only change enables the next Level.
 - Custom session: neither standard path appears selected, the editor is labeled as outside progression, and the supporting copy explains where the session will be stored.
 - Progress: all visible Phase terminology has been replaced by Level, while the single current-position marker and charging rails remain intact.
 
@@ -33,6 +35,9 @@ The hierarchy now reads in the required order: current Level context, next-sessi
 - [P2 resolved] At 320px, the original absolute Progress action overlapped the centered product title.
   - Fix: converted the header to a three-column grid and tightened the narrow breakpoint typography.
   - Post-fix evidence: `qa/11-next-workout-320-pass2.png` shows clear separation with no horizontal overflow.
+- [P2 resolved] Adding target pace risked wrapping the compact progression bridge or creating a second row at 320px.
+  - Fix: kept three prescription metrics—run interval, total running, and target pace—in equal grid columns; measured distance and actual pace remain in the session table.
+  - Post-fix evidence: `qa/13-target-pace-progress-320.png` shows all metric cells sharing one top coordinate with no overflow.
 - No remaining actionable P0, P1, or P2 findings.
 
 ## Required fidelity surfaces
@@ -41,13 +46,14 @@ The hierarchy now reads in the required order: current Level context, next-sessi
 - Spacing and layout rhythm: the new sections use the existing 8–16px rhythm, 16px page gutters, and 16–20px radii. The bottom action remains visually anchored.
 - Colors and tokens: Level progression uses the established run green; walking remains blue; secondary and disabled states use existing muted and ring-track tokens.
 - Image quality and assets: this screen contains no raster imagery or non-standard icon assets. Existing text controls are preserved; no placeholder visual assets were introduced.
-- Copy and content: `Level`, `Another session`, `Level up`, and `Custom session` match the selected terminology and mental model. Custom copy explicitly states that the session does not affect progression.
+- Copy and content: `Level`, `Another session`, `Level up`, `Target pace`, and `Custom session` match the selected terminology and mental model. Custom copy explicitly states that the session does not affect progression.
 - Accessibility and responsiveness: choice buttons expose tab roles and selected state, disabled controls use native semantics, the live progression preview uses an announced region, and no horizontal overflow appears at tested widths.
 
 ## Primary interactions tested
 
 - Continue the current Level with locked structural settings and adjustable tempo.
 - Select Level up, edit the Level recipe, see live progression deltas, and enable the next-Level start action.
+- Create a new Level by changing target pace alone, with speed percentage calculated from the inverse pace relationship.
 - Select a custom session and unlock all configuration controls without assigning a Level.
 - Restore the latest Level recipe after reload or import.
 - Migrate legacy history into stable Level numbers.

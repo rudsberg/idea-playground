@@ -131,7 +131,7 @@
   .stepper button{width:38px;height:38px;background:var(--bg);color:var(--text);font-size:22px;border-radius:12px;line-height:1}
   .stepper .val{min-width:64px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
   .stepper .val small{display:block;font-size:11px;color:var(--muted);font-weight:500}
-  .level-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--ring-track);padding-top:11px;margin-top:1px}
+  .level-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ring-track);padding-top:11px;margin-top:1px}
   .level-preview div{text-align:center;border-left:1px solid var(--ring-track)}
   .level-preview div:first-child{border-left:none}
   .level-preview b{display:block;color:#86efac;font-size:13px;font-variant-numeric:tabular-nums}
@@ -358,6 +358,7 @@
       <div class="level-preview hidden" id="levelPreview" aria-live="polite">
         <div><b id="previewInterval">0%</b><span>Run interval</span></div>
         <div><b id="previewTotalRun">0%</b><span>Total running</span></div>
+        <div><b id="previewTargetPace">0%</b><span>Target speed</span></div>
         <div class="level-preview-note" id="levelPreviewNote">Adjust run, walk, or sets to define the next level.</div>
       </div>
     </div>
@@ -534,8 +535,8 @@
     const sessions=currentLevel ? levelSessions.filter(session=>session.level===currentLevel) : [];
     return {hasLevel:currentLevel>0,currentLevel:currentLevel||1,sessions,baseline:sessions[0]||null};
   }
-  function structureChanged(baseline){
-    return !!baseline && (cfg.run!==baseline.run || cfg.walk!==baseline.walk || cfg.sets!==baseline.sets);
+  function recipeChanged(baseline){
+    return !!baseline && (cfg.run!==baseline.run || cfg.walk!==baseline.walk || cfg.sets!==baseline.sets || cfg.paceSec!==baseline.paceSec);
   }
   function setSetupMode(mode,restore=true){
     const context=levelContext();
@@ -580,17 +581,19 @@
     $("customNote").classList.toggle("hidden",setupMode!=="custom");
     const isLevelUp=setupMode==="levelup" && context.hasLevel;
     $("levelPreview").classList.toggle("hidden",!isLevelUp);
-    const changed=structureChanged(baseline);
+    const changed=recipeChanged(baseline);
     if(isLevelUp && baseline){
       const intervalPct=(cfg.run-baseline.run)/baseline.run*100;
       const oldTotal=baseline.run*baseline.sets;
       const newTotal=cfg.run*cfg.sets;
       const totalPct=(newTotal-oldTotal)/oldTotal*100;
+      const targetSpeedPct=baseline.paceSec>0&&cfg.paceSec>0?(baseline.paceSec/cfg.paceSec-1)*100:0;
       $("previewInterval").textContent=signedPct(intervalPct);
       $("previewTotalRun").textContent=signedPct(totalPct);
+      $("previewTargetPace").textContent=signedPct(targetSpeedPct);
       $("levelPreviewNote").textContent=changed
         ? `Compared with Level ${level}`
-        : `Adjust run, walk, or sets to define Level ${level+1}.`;
+        : `Adjust an interval, sets, or target pace to define Level ${level+1}.`;
     }
     if(setupMode==="custom"){
       $("setupTitle").textContent="Custom workout";
@@ -600,11 +603,10 @@
       $("setupHint").textContent="Adjust what changes";
     } else {
       $("setupTitle").textContent=`Level ${level} workout`;
-      $("setupHint").textContent=context.hasLevel?"Run, walk and sets locked":"Your starting settings";
+      $("setupHint").textContent=context.hasLevel?"Level recipe locked":"Your starting settings";
     }
     document.querySelectorAll('.stepper button').forEach(button=>{
-      const structural=button.dataset.step!=="pace";
-      button.disabled=setupMode==="another" && context.hasLevel && structural;
+      button.disabled=setupMode==="another" && context.hasLevel;
     });
     if(!running && doneView.classList.contains("hidden")){
       mainBtn.textContent=setupMode==="custom"?"Start custom session":`Start Level ${isLevelUp?level+1:level}`;
@@ -979,7 +981,7 @@
     let highestLevel=0,lastLevel=0,lastKey="";
     sessions.forEach(session=>{
       if(session.sessionKind==="custom") return;
-      const key=`${session.run}|${session.walk}|${session.sets}`;
+      const key=`${session.run}|${session.walk}|${session.sets}|${session.paceSec}`;
       if(session.level){
         highestLevel=Math.max(highestLevel,session.level);
         lastLevel=session.level;
@@ -1027,7 +1029,7 @@
   function groupHistory(sessions){
     const byLevel=new Map();
     sessions.filter(session=>session.sessionKind==="level").forEach(session=>{
-      if(!byLevel.has(session.level)) byLevel.set(session.level,{level:session.level,run:session.run,walk:session.walk,sets:session.sets,sessions:[]});
+      if(!byLevel.has(session.level)) byLevel.set(session.level,{level:session.level,run:session.run,walk:session.walk,sets:session.sets,paceSec:session.paceSec,sessions:[]});
       byLevel.get(session.level).sessions.push(session);
     });
     return [...byLevel.values()].sort((a,b)=>b.level-a.level);
@@ -1071,20 +1073,18 @@
     const oldRunTotal=older.run*older.sets, newRunTotal=newer.run*newer.sets;
     const intervalPct=older.run ? (newer.run-older.run)/older.run*100 : 0;
     const runningPct=oldRunTotal ? (newRunTotal-oldRunTotal)/oldRunTotal*100 : 0;
-    const oldEnd=older.sessions[0], newStart=newer.sessions[newer.sessions.length-1];
-    const oldDistance=sessionDistance(oldEnd), newDistance=sessionDistance(newStart);
-    const distancePct=oldDistance ? (newDistance-oldDistance)/oldDistance*100 : NaN;
+    const targetSpeedPct=older.paceSec>0&&newer.paceSec>0?(older.paceSec/newer.paceSec-1)*100:NaN;
     const deltaClass=value=>value>0?'positive':value<0?'negative':'';
-    const distanceMetric=oldDistance&&newDistance
-      ? `<div class="transition-metric"><span>Distance km</span><b>${(oldDistance/1000).toFixed(2)}–${(newDistance/1000).toFixed(2)}</b><small class="${deltaClass(distancePct)}">${signedPct(distancePct)}</small></div>`
-      : `<div class="transition-metric"><span>Recovery</span><b>${fmtLoose(older.walk)}–${fmtLoose(newer.walk)}</b><small>walk interval</small></div>`;
+    const targetMetric=older.paceSec&&newer.paceSec
+      ? `<div class="transition-metric"><span>Target pace</span><b>${fmtLoose(older.paceSec)}–${fmtLoose(newer.paceSec)}</b><small class="${deltaClass(targetSpeedPct)}">${signedPct(targetSpeedPct)} speed</small></div>`
+      : `<div class="transition-metric"><span>Target pace</span><b>—</b><small>not recorded</small></div>`;
     return `<div class="transition${isCurrentPosition?' current-position':''}" aria-label="Progression from Level ${older.level} to Level ${newer.level}">
       <div class="transition-card">
         <div class="transition-head"><span>Progression</span><b>Level ${older.level} <i>→</i> Level ${newer.level}</b></div>
         <div class="transition-grid">
           <div class="transition-metric"><span>Run interval</span><b>${fmtLoose(older.run)}–${fmtLoose(newer.run)}</b><small class="${deltaClass(intervalPct)}">${signedPct(intervalPct)}</small></div>
           <div class="transition-metric"><span>Total run</span><b>${fmtDuration(oldRunTotal)}–${fmtDuration(newRunTotal)}</b><small class="${deltaClass(runningPct)}">${signedPct(runningPct)}</small></div>
-          ${distanceMetric}
+          ${targetMetric}
         </div>
       </div>
     </div>`;

@@ -188,16 +188,22 @@ test('next workout is prefilled from the latest completed session', async ({ pag
   await expect(page.locator('#currentLevelMeta')).toHaveText('1 session completed');
   await expect(page.locator('#anotherSessionBtn')).toHaveClass(/selected/);
   await expect(page.locator('button[data-step="run"][data-d="15"]')).toBeDisabled();
-  await expect(page.locator('button[data-step="pace"][data-d="5"]')).toBeEnabled();
+  await expect(page.locator('button[data-step="pace"][data-d="5"]')).toBeDisabled();
   await expect(page.locator('#mainBtn')).toHaveText('Start Level 1');
 
   await page.click('#levelUpBtn');
   await expect(page.locator('#setupTitle')).toHaveText('Level 2 setup');
   await expect(page.locator('#levelPreview')).toBeVisible();
   await expect(page.locator('#mainBtn')).toBeDisabled();
+  await page.click('button[data-step="pace"][data-d="-5"]');
+  await expect(page.locator('#previewInterval')).toHaveText('0%');
+  await expect(page.locator('#previewTotalRun')).toHaveText('0%');
+  await expect(page.locator('#previewTargetPace')).toHaveText('+1%');
+  await expect(page.locator('#mainBtn')).toBeEnabled();
   await page.click('button[data-step="run"][data-d="15"]');
   await expect(page.locator('#previewInterval')).toHaveText('+8%');
   await expect(page.locator('#previewTotalRun')).toHaveText('+8%');
+  await expect(page.locator('#previewTargetPace')).toHaveText('+1%');
   await expect(page.locator('#mainBtn')).toBeEnabled();
   await expect(page.locator('#mainBtn')).toHaveText('Start Level 2');
 
@@ -262,6 +268,8 @@ test('progress history groups matching workouts and shows calculated progression
   await expect(page.locator('.transition')).toContainText('+100%');
   await expect(page.locator('.transition')).toContainText('Total run');
   await expect(page.locator('.transition')).toContainText('+60%');
+  await expect(page.locator('.transition')).toContainText('Target pace');
+  await expect(page.locator('.transition')).toContainText('0% speed');
   await expect(page.locator('#historyContent')).not.toContainText(/phase/i);
   await expect(page.locator('.other-history')).toBeVisible();
   await expect(page.locator('.other-row')).toHaveCount(1);
@@ -288,6 +296,7 @@ test('halfway point shows and speaks a turn-back cue once', async ({ page }) => 
 });
 
 test('private backfill imports the Strava journey into five workout groups without duplicates', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 844 });
   const importUrl = `${APP}?backfill=joel-rehab-2026`;
   await page.goto(importUrl);
   await expect(page.locator('#importView')).toBeVisible();
@@ -309,6 +318,14 @@ test('private backfill imports the Strava journey into five workout groups witho
   await expect(page.locator('.transition.current-position')).toHaveCount(1);
   await expect(page.locator('.transition').first()).toHaveClass(/current-position/);
   await expect(page.locator('.transition').first()).toHaveAttribute('aria-label', 'Progression from Level 4 to Level 5');
+  await expect(page.locator('.transition').first()).toContainText('6:30–6:20');
+  await expect(page.locator('.transition').first()).toContainText('+3% speed');
+  const progressionMetrics = await page.locator('.transition').first().locator('.transition-metric').evaluateAll(nodes =>
+    nodes.map(node => ({ top: Math.round(node.getBoundingClientRect().top), right: node.getBoundingClientRect().right }))
+  );
+  expect(progressionMetrics).toHaveLength(3);
+  expect(new Set(progressionMetrics.map(metric => metric.top)).size).toBe(1);
+  expect(Math.max(...progressionMetrics.map(metric => metric.right))).toBeLessThanOrEqual(320);
   await expect(page.locator('.session-row')).toHaveCount(11);
   await expect(page.locator('#historyContent')).not.toContainText(/estimated|est\./i);
   await expect(page.locator('#historyContent')).not.toContainText(/phase/i);
