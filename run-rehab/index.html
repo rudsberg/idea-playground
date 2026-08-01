@@ -39,13 +39,17 @@
   }
   body.phase-run{background:radial-gradient(120% 90% at 50% -10%, #0f3d24 0%, #0b1020 60%)}
   body.phase-walk{background:radial-gradient(120% 90% at 50% -10%, #0d3450 0%, #0b1020 60%)}
+  body.history-open{overflow:auto;display:block}
+  body.history-open main{justify-content:flex-start;align-items:stretch;padding:0}
 
-  header{
+  .app-header{
     text-align:center;
     padding:18px 16px 6px;
+    position:relative;
   }
-  header h1{font-size:15px;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
-  header .sub{font-size:12px;color:var(--muted);margin-top:4px;opacity:.75}
+  .app-header h1{font-size:15px;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
+  .app-header .sub{font-size:12px;color:var(--muted);margin-top:4px;opacity:.75;padding-inline:62px}
+  .header-action{position:absolute;right:16px;top:12px;padding:9px 10px;background:transparent;color:var(--walk);font-size:13px}
 
   main{
     flex:1;
@@ -97,6 +101,7 @@
   .btn-secondary{
     padding:20px 22px;font-size:15px;background:var(--card);color:var(--muted);
   }
+  .btn-tertiary{padding:20px 18px;font-size:15px;background:var(--card);color:var(--walk)}
 
   /* Setup panel */
   .setup{
@@ -152,22 +157,74 @@
 
   .pace-avg{font-size:12px;color:var(--muted);font-weight:600;text-align:center}
   .pace-avg b{color:var(--text)}
+  .halfway-notice{background:rgba(167,139,250,.14);color:#c4b5fd;border:1px solid rgba(167,139,250,.35);border-radius:14px;padding:11px 14px;font-size:13px;font-weight:700;text-align:center;width:100%;max-width:340px}
 
   /* Complete state */
-  .done-emoji{font-size:64px;margin-bottom:4px}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:var(--run);margin-bottom:10px}
+  .done-title{font-size:38px;font-weight:800;line-height:1.05}
+  .done-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--ring-track);border:1px solid var(--ring-track);border-radius:18px;overflow:hidden;width:100%;max-width:340px;margin-top:24px}
+  .done-stat{background:var(--card);padding:15px 10px}
+  .done-stat b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+  .done-stat span{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+
+  /* Progress history */
+  #historyView{width:100%;min-height:100dvh}
+  .history-shell{width:min(100%,620px);margin:0 auto;padding:18px 16px calc(36px + env(safe-area-inset-bottom))}
+  .history-nav{display:grid;grid-template-columns:64px 1fr 64px;align-items:center;margin-bottom:20px}
+  .history-nav h2{font-size:34px;line-height:1;font-weight:800;text-align:center}
+  .back-btn{justify-self:start;background:transparent;color:var(--text);padding:10px 0;font-size:14px}
+  .history-summary{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 9px;font-size:13px;color:var(--muted);line-height:1.55;margin:0 2px 20px;text-align:center}
+  .history-summary b{color:var(--text);font-weight:700}
+  .history-empty{border:1px solid var(--ring-track);border-radius:20px;padding:28px 22px;background:rgba(21,27,48,.7);text-align:center}
+  .history-empty h3{font-size:20px;margin-bottom:8px}
+  .history-empty p{color:var(--muted);font-size:14px;line-height:1.5}
+  .workout-group{border:1px solid var(--ring-track);border-radius:20px;overflow:hidden;background:rgba(21,27,48,.76)}
+  .group-head{padding:18px 16px 15px}
+  .group-kicker{font-size:12px;font-weight:800;color:var(--run);margin-bottom:7px}
+  .group-title{font-size:24px;font-weight:800;letter-spacing:-.35px;white-space:nowrap}
+  .group-title .run-copy{color:var(--run)}
+  .group-title .walk-copy{color:var(--walk)}
+  .group-meta{color:var(--muted);font-size:12px;margin-top:7px}
+  .session-table{border-top:1px solid var(--ring-track)}
+  .session-head,.session-row{display:grid;grid-template-columns:minmax(76px,1.2fr) repeat(3,minmax(56px,.8fr));gap:8px;align-items:center;padding:11px 15px}
+  .session-head{font-size:10px;font-weight:800;letter-spacing:.45px;text-transform:uppercase;color:var(--muted);padding-top:12px;padding-bottom:9px}
+  .session-row{border-top:1px solid rgba(37,46,73,.72);min-height:64px;font-size:13px;font-variant-numeric:tabular-nums}
+  .session-row:first-of-type{border-top:none}
+  .session-date b,.session-value b{display:block;color:var(--text);font-size:13px;line-height:1.25}
+  .session-date span,.session-value span{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+  .session-value.distance b{color:var(--run)}
+  .session-value{text-align:right}
+  .transition{position:relative;margin:0 0 0 20px;padding:20px 0 20px 27px;border-left:3px solid rgba(34,197,94,.7)}
+  .transition::before,.transition::after{content:"";position:absolute;left:-3px;height:3px;background:rgba(34,197,94,.7)}
+  .transition::before{top:0;width:26%}
+  .transition::after{bottom:0;width:58%}
+  .transition-list{display:flex;flex-direction:column;gap:10px}
+  .transition-step{border-left:2px solid var(--ring-track);padding:4px 0 4px 13px;color:var(--muted);font-size:12px;line-height:1.35}
+  .transition-step:nth-child(2){margin-left:34px}
+  .transition-step:nth-child(3){margin-left:68px}
+  .transition-step b{display:block;color:var(--text);font-size:15px}
+  .transition-step.gain b{color:var(--ready)}
+  .history-groups{display:flex;flex-direction:column}
+  .history-note{text-align:center;color:var(--muted);font-size:11px;line-height:1.45;margin-top:18px;padding:0 16px}
+  @media (max-width:380px){
+    .group-title{font-size:21px}
+    .session-head,.session-row{grid-template-columns:minmax(68px,1.15fr) repeat(3,minmax(50px,.75fr));padding-inline:12px;gap:5px}
+    .session-date b,.session-value b{font-size:12px}
+  }
 </style>
 </head>
 <body>
-<header>
+<header class="app-header" id="appHeader">
   <h1>Rehab Run Trainer</h1>
-  <div class="sub" id="planSummary">Phase 1 · run / walk intervals</div>
+  <div class="sub" id="planSummary">Run / walk intervals</div>
+  <button class="header-action" id="historyBtn" type="button">Progress</button>
 </header>
 
 <main>
   <!-- SETUP -->
   <section id="setupView">
     <div class="setup">
-      <h2>Phase 1 Workout</h2>
+      <h2>Workout</h2>
       <div class="field">
         <label>Run</label>
         <div class="stepper">
@@ -201,7 +258,7 @@
         </div>
       </div>
     </div>
-    <p class="hint" style="margin-top:16px">Total <b id="totalTime">30:00</b> · Voice &amp; sound cues fire at every switch. 🔊 Turn your volume up. 📍 Allow location for pace — it shows after ~10 s of each run.</p>
+    <p class="hint" style="margin-top:16px">Total <b id="totalTime">30:00</b> · Voice and sound cues fire at every switch. Turn your volume up and allow location for live pace.</p>
   </section>
 
   <!-- ACTIVE -->
@@ -236,19 +293,34 @@
       </div>
       <div class="pace-avg">session avg <b id="paceSession">--:--</b> /km</div>
     </div>
+    <div class="halfway-notice hidden" id="halfwayNotice" role="status" aria-live="polite">About halfway — a good time to turn back.</div>
   </section>
 
   <!-- COMPLETE -->
   <section id="doneView" class="hidden" style="text-align:center">
-    <div class="done-emoji">🎉</div>
-    <div class="time" style="font-size:34px">Nice work!</div>
+    <div class="eyebrow">Workout complete</div>
+    <div class="done-title">Nice work!</div>
     <p class="hint" style="margin-top:10px" id="doneSummary"></p>
+    <div class="done-stats" id="doneStats"></div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section id="historyView" class="hidden">
+    <div class="history-shell">
+      <div class="history-nav">
+        <button class="back-btn" id="historyBackBtn" type="button">Back</button>
+        <h2>Progress</h2>
+        <span></span>
+      </div>
+      <div id="historyContent"></div>
+    </div>
   </section>
 </main>
 
 <div class="controls">
   <button class="btn-primary" id="mainBtn">Start</button>
   <button class="btn-secondary hidden" id="resetBtn">Reset</button>
+  <button class="btn-tertiary hidden" id="doneHistoryBtn">View progress</button>
 </div>
 
 <script>
@@ -256,14 +328,38 @@
   "use strict";
 
   // ---------- Config ----------
-  const cfg = { run: 60, walk: 120, sets: 10, paceSec: 390 };  // paceSec = target min/km, in seconds
+  const SETTINGS_KEY = "rehab-run-settings-v1";
+  const HISTORY_KEY = "rehab-run-history-v1";
+  const defaults = { run: 60, walk: 120, sets: 10, paceSec: 390 };
+  const cfg = { ...defaults };  // paceSec = target min/km, in seconds
   const READY = 3; // countdown seconds before first run
+  const PACE_TOLERANCE_SEC = 20;
+
+  function readJson(key, fallback){
+    try{ const value=JSON.parse(localStorage.getItem(key)); return value ?? fallback; }
+    catch(e){ return fallback; }
+  }
+  function writeJson(key, value){
+    try{ localStorage.setItem(key,JSON.stringify(value)); }
+    catch(e){}
+  }
+  function loadSettings(){
+    const saved=readJson(SETTINGS_KEY,{});
+    const run=Number(saved.run), walk=Number(saved.walk), sets=Number(saved.sets), pace=Number(saved.paceSec);
+    if(Number.isFinite(run)) cfg.run=Math.max(15,Math.min(3600,Math.round(run/15)*15));
+    if(Number.isFinite(walk)) cfg.walk=Math.max(15,Math.min(3600,Math.round(walk/15)*15));
+    if(Number.isFinite(sets)) cfg.sets=Math.max(1,Math.min(30,Math.round(sets)));
+    if(Number.isFinite(pace)) cfg.paceSec=Math.max(180,Math.min(720,Math.round(pace/5)*5));
+  }
+  function saveSettings(){ writeJson(SETTINGS_KEY,cfg); }
+  loadSettings();
 
   // ---------- Elements ----------
   const $ = id => document.getElementById(id);
   const body = document.body;
-  const setupView = $("setupView"), activeView = $("activeView"), doneView = $("doneView");
-  const mainBtn = $("mainBtn"), resetBtn = $("resetBtn");
+  const setupView = $("setupView"), activeView = $("activeView"), doneView = $("doneView"), historyView = $("historyView");
+  const mainBtn = $("mainBtn"), resetBtn = $("resetBtn"), doneHistoryBtn = $("doneHistoryBtn");
+  const appHeader=$("appHeader"), controls=document.querySelector('.controls');
   const phaseLabel = $("phaseLabel"), timeDisplay = $("timeDisplay"), paceHint = $("paceHint");
   const ringProg = $("ringProg"), setNum = $("setNum"), setTotal = $("setTotal"), dotsEl = $("dots");
   const RING_LEN = 2 * Math.PI * 90;
@@ -278,11 +374,24 @@
   let raf = null;
   let lastTickSecond = -1;  // for per-second countdown beeps
   let wakeLock = null;
+  let halfwayCued = false, halfwayTimer = null;
+  let historyReturnView = "setup";
 
   // ---------- Helpers ----------
   const fmt = s => { s = Math.max(0, Math.ceil(s)); const m = Math.floor(s/60); const r = s%60; return m+":"+String(r).padStart(2,"0"); };
   const fmtLoose = s => { const m = Math.floor(s/60); const r = s%60; return r? m+":"+String(r).padStart(2,"0") : m+":00"; };
   const paceLabel = () => fmtLoose(cfg.paceSec);   // "6:30"
+  const fmtDuration = s => {
+    s=Math.max(0,Math.round(Number(s)||0));
+    const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
+    return h ? `${h}h ${m}m` : `${m}:${String(sec).padStart(2,"0")}`;
+  };
+  const fmtKm = m => Number.isFinite(Number(m)) && Number(m)>0 ? `${(Number(m)/1000).toFixed(2)} km` : "—";
+  const signedPct = value => {
+    if(!Number.isFinite(value)) return "—";
+    const rounded=Math.round(value);
+    return `${rounded>0?"+":""}${rounded}%`;
+  };
 
   function buildPlan(){
     plan = [{phase:"ready", dur:READY, set:0}];
@@ -299,7 +408,7 @@
     $("setsVal").textContent = cfg.sets;
     const total = cfg.sets*(cfg.run+cfg.walk);
     $("totalTime").textContent = fmtLoose(total);
-    $("planSummary").textContent = `Phase 1 · ${fmtLoose(cfg.run)} run / ${fmtLoose(cfg.walk)} walk × ${cfg.sets}`;
+    $("planSummary").textContent = `${fmtLoose(cfg.run)} run / ${fmtLoose(cfg.walk)} walk × ${cfg.sets}`;
     $("paceVal").textContent = paceLabel();
     $("runPaceLbl").textContent = `at ${paceLabel()} /km`;
     $("paceHint").innerHTML = `target <b>${paceLabel()}</b> /km`;
@@ -311,6 +420,7 @@
       if(k==='walk') cfg.walk = Math.max(15, cfg.walk + d);
       if(k==='sets') cfg.sets = Math.min(30, Math.max(1, cfg.sets + d));
       if(k==='pace') cfg.paceSec = Math.min(720, Math.max(180, cfg.paceSec + d)); // 3:00–12:00 /km
+      saveSettings();
       refreshSetup();
     });
   });
@@ -382,6 +492,12 @@
   }
   function cueTick(){ ensureAudio(); beep(700,0,0.08,0.22,'square'); }
   function cueGo(){ ensureAudio(); beep(880,0,0.5,0.4,'triangle'); }
+  function cueHalfway(){
+    ensureAudio();
+    beep(784,0,0.18,0.32,'triangle');
+    beep(988,0.18,0.28,0.34,'triangle');
+    say("You are about halfway through the workout. This is a good time to turn back.");
+  }
   function cueFinish(){
     ensureAudio();
     beep(660,0,0.2,0.35,'triangle');
@@ -427,6 +543,7 @@
   let legAnchor=null, frozenCount=0, lastMoveWall=0;
   let setDist=0, setTime=0;            // accepted legs, current (or just-finished) run set
   let sesDist=0, sesTime=0;            // accepted legs, all run sets this session
+  let walkDist=0;                      // accepted walking distance across recovery segments
 
   const targetSpeed = () => 1000/cfg.paceSec;   // m/s
   const gclamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -439,7 +556,9 @@
 
   function setupGauge(){
     gaugeTargetLbl.textContent=paceLabel();
-    const l=posFor(92), rr=posFor(108);            // "in zone" = 92%–108% of target speed
+    const slowPct=cfg.paceSec/(cfg.paceSec+PACE_TOLERANCE_SEC)*100;
+    const fastPct=cfg.paceSec/Math.max(1,cfg.paceSec-PACE_TOLERANCE_SEC)*100;
+    const l=posFor(slowPct), rr=posFor(fastPct);    // direct target pace tolerance: ±20 sec/km
     gaugeZone.style.left=l+'%'; gaugeZone.style.width=(rr-l)+'%';
   }
   function startGeo(){
@@ -470,6 +589,10 @@
   function inRunSeg(){
     const seg = running && plan[segIndex] ? plan[segIndex] : null;
     return !!(seg && seg.phase==='run' && !paused);
+  }
+  function inWalkSeg(){
+    const seg = running && plan[segIndex] ? plan[segIndex] : null;
+    return !!(seg && seg.phase==='walk' && !paused);
   }
   function acceptLeg(d, span){
     const spd=d/span;
@@ -506,6 +629,10 @@
       const d=haversine(lastAcceptedFix.lat,lastAcceptedFix.lon,c.latitude,c.longitude);
       const dt=t-lastAcceptedFix.t;
       if(dt<=0 || d/dt>MAX_SPEED) return;          // spike / out-of-order → drop
+      if(inWalkSeg() && dt<=5){
+        const walkSpeed=d/dt;
+        if(walkSpeed>=0.2 && walkSpeed<=3.5) walkDist+=d;
+      }
     }
     frozenCount=0;
     lastAcceptedFix={lat:c.latitude, lon:c.longitude, t};
@@ -568,10 +695,11 @@
       return;                                    // hold the last good average, don't judge it
     }
     const pct=Math.round(setSpd/targetSpeed()*100);
+    const currentPace=1000/setSpd;
     let cls,txt,col;
-    if(pct>=92 && pct<=108){ cls='good'; txt='In the zone ✓'; col='var(--good)'; }
-    else if(pct<92){ if(pct>=85){cls='warn';txt='A touch slow';col='var(--warn)';} else {cls='bad';txt='Speed up';col='var(--bad)';} }
-    else { if(pct<=118){cls='warn';txt='A touch fast';col='var(--warn)';} else {cls='bad';txt='Ease off';col='var(--bad)';} }
+    if(Math.abs(currentPace-cfg.paceSec)<=PACE_TOLERANCE_SEC){ cls='good'; txt='In the zone'; col='var(--good)'; }
+    else if(currentPace>cfg.paceSec){ if(currentPace<=cfg.paceSec+45){cls='warn';txt='A touch slow';col='var(--warn)';} else {cls='bad';txt='Speed up';col='var(--bad)';} }
+    else { if(currentPace>=cfg.paceSec-45){cls='warn';txt='A touch fast';col='var(--warn)';} else {cls='bad';txt='Ease off';col='var(--bad)';} }
     setStatus(txt,cls); gaugeMarker.style.background=col;
   }
 
@@ -590,16 +718,160 @@
   }
   const getCss = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
+  // ---------- Local progress history ----------
+  function normalizeSession(item){
+    if(!item || typeof item!=="object") return null;
+    const completedAt=new Date(item.completedAt);
+    const session={
+      id:String(item.id||""),
+      completedAt:Number.isNaN(completedAt.getTime()) ? null : completedAt.toISOString(),
+      run:Number(item.run), walk:Number(item.walk), sets:Number(item.sets), paceSec:Number(item.paceSec),
+      totalDurationSec:Number(item.totalDurationSec), runDurationSec:Number(item.runDurationSec),
+      walkDurationSec:Number(item.walkDurationSec), runDistanceM:Number(item.runDistanceM)||0,
+      walkDistanceM:Number(item.walkDistanceM)||0, avgRunPaceSec:Number(item.avgRunPaceSec)||0,
+      measuredRunSec:Number(item.measuredRunSec)||0
+    };
+    if(!session.completedAt || !Number.isFinite(session.run) || !Number.isFinite(session.walk) || !Number.isFinite(session.sets)) return null;
+    if(!Number.isFinite(session.paceSec)) session.paceSec=0;
+    if(!Number.isFinite(session.totalDurationSec)) session.totalDurationSec=session.sets*(session.run+session.walk);
+    if(!Number.isFinite(session.runDurationSec)) session.runDurationSec=session.sets*session.run;
+    if(!Number.isFinite(session.walkDurationSec)) session.walkDurationSec=session.sets*session.walk;
+    return session;
+  }
+  function loadHistory(){
+    const raw=readJson(HISTORY_KEY,[]);
+    return (Array.isArray(raw)?raw:[]).map(normalizeSession).filter(Boolean)
+      .sort((a,b)=>new Date(b.completedAt)-new Date(a.completedAt));
+  }
+  function recordSession(){
+    const avgRunPaceSec=sesDist>0 && sesTime>0 ? sesTime/(sesDist/1000) : 0;
+    const session={
+      id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
+      completedAt:new Date().toISOString(),
+      run:cfg.run, walk:cfg.walk, sets:cfg.sets, paceSec:cfg.paceSec,
+      totalDurationSec:cfg.sets*(cfg.run+cfg.walk),
+      runDurationSec:cfg.sets*cfg.run,
+      walkDurationSec:cfg.sets*cfg.walk,
+      runDistanceM:Math.max(0,sesDist), walkDistanceM:Math.max(0,walkDist),
+      avgRunPaceSec, measuredRunSec:Math.max(0,sesTime)
+    };
+    const history=[session,...loadHistory()].slice(0,250);
+    writeJson(HISTORY_KEY,history);
+    return session;
+  }
+  function groupHistory(sessions){
+    const groups=[];
+    sessions.forEach(session=>{
+      const key=`${session.run}|${session.walk}|${session.sets}`;
+      const last=groups[groups.length-1];
+      if(last && last.key===key) last.sessions.push(session);
+      else groups.push({key,run:session.run,walk:session.walk,sets:session.sets,sessions:[session]});
+    });
+    return groups;
+  }
+  function dateLabel(iso){
+    const date=new Date(iso), today=new Date();
+    const sameDay=date.getFullYear()===today.getFullYear() && date.getMonth()===today.getMonth() && date.getDate()===today.getDate();
+    return {
+      lead:sameDay?"Today":new Intl.DateTimeFormat(undefined,{weekday:"short"}).format(date),
+      detail:new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric",year:date.getFullYear()===today.getFullYear()?undefined:"numeric"}).format(date)
+    };
+  }
+  function sessionDistance(session){ return (session.runDistanceM||0)+(session.walkDistanceM||0); }
+  function historyRow(session){
+    const date=dateLabel(session.completedAt);
+    const distance=sessionDistance(session);
+    return `<div class="session-row">
+      <div class="session-date"><b>${date.lead}</b><span>${date.detail}</span></div>
+      <div class="session-value distance"><b>${distance? (distance/1000).toFixed(2):"—"}</b><span>km</span></div>
+      <div class="session-value"><b>${fmtDuration(session.totalDurationSec)}</b><span>total</span></div>
+      <div class="session-value"><b>${session.avgRunPaceSec?mmss(session.avgRunPaceSec):"—"}</b><span>/km run</span></div>
+    </div>`;
+  }
+  function groupMarkup(group,index){
+    const paceValues=group.sessions.map(s=>s.paceSec).filter(Number.isFinite);
+    const target=paceValues.length?paceValues[0]:0;
+    return `<section class="workout-group">
+      <div class="group-head">
+        ${index===0?'<div class="group-kicker">Current workout</div>':''}
+        <div class="group-title"><span class="run-copy">${fmtLoose(group.run)} run</span> · <span class="walk-copy">${fmtLoose(group.walk)} walk</span> × ${group.sets}</div>
+        <div class="group-meta">${group.sessions.length} ${group.sessions.length===1?"session":"sessions"}${target?` · ${fmtLoose(target)} /km target`:""}</div>
+      </div>
+      <div class="session-table">
+        <div class="session-head"><span>Date</span><span style="text-align:right">Distance</span><span style="text-align:right">Duration</span><span style="text-align:right">Avg pace</span></div>
+        ${group.sessions.map(historyRow).join("")}
+      </div>
+    </section>`;
+  }
+  function transitionMarkup(newer,older){
+    const oldRunTotal=older.run*older.sets, newRunTotal=newer.run*newer.sets;
+    const intervalPct=older.run ? (newer.run-older.run)/older.run*100 : 0;
+    const runningPct=oldRunTotal ? (newRunTotal-oldRunTotal)/oldRunTotal*100 : 0;
+    const oldEnd=older.sessions[0], newStart=newer.sessions[newer.sessions.length-1];
+    const oldDistance=sessionDistance(oldEnd), newDistance=sessionDistance(newStart);
+    const distancePct=oldDistance ? (newDistance-oldDistance)/oldDistance*100 : NaN;
+    const distanceStep=oldDistance&&newDistance
+      ? `<div class="transition-step"><b>${fmtKm(oldDistance)} → ${fmtKm(newDistance)}</b>${signedPct(distancePct)} distance covered</div>`
+      : `<div class="transition-step"><b>${fmtLoose(older.walk)} → ${fmtLoose(newer.walk)} walk</b>recovery interval</div>`;
+    return `<div class="transition" aria-label="Workout progression">
+      <div class="transition-list">
+        <div class="transition-step"><b>${fmtLoose(older.run)} → ${fmtLoose(newer.run)} run</b>${signedPct(intervalPct)} interval</div>
+        <div class="transition-step gain"><b>${fmtDuration(oldRunTotal)} → ${fmtDuration(newRunTotal)}</b>${signedPct(runningPct)} total running</div>
+        ${distanceStep}
+      </div>
+    </div>`;
+  }
+  function renderHistory(){
+    const sessions=loadHistory(), content=$("historyContent");
+    if(!sessions.length){
+      content.innerHTML='<div class="history-empty"><h3>No finished runs yet</h3><p>Your completed workouts will appear here automatically, grouped as your run and walk intervals progress.</p></div>';
+      return;
+    }
+    const totalRun=sessions.reduce((sum,s)=>sum+s.runDistanceM,0);
+    const totalWalk=sessions.reduce((sum,s)=>sum+s.walkDistanceM,0);
+    const totalTime=sessions.reduce((sum,s)=>sum+s.totalDurationSec,0);
+    const groups=groupHistory(sessions);
+    let groupHtml="";
+    groups.forEach((group,index)=>{
+      groupHtml+=groupMarkup(group,index);
+      if(groups[index+1]) groupHtml+=transitionMarkup(group,groups[index+1]);
+    });
+    content.innerHTML=`<div class="history-summary"><span><b>${sessions.length}</b> sessions · <b>${fmtKm(totalRun)}</b> running</span><span><b>${fmtKm(totalWalk)}</b> walking · <b>${fmtDuration(totalTime)}</b> active</span></div><div class="history-groups">${groupHtml}</div><p class="history-note">Distances depend on available GPS measurements and stay only on this device.</p>`;
+  }
+  function showHistory(){
+    historyReturnView=doneView.classList.contains('hidden')?'setup':'done';
+    setupView.classList.add('hidden'); activeView.classList.add('hidden'); doneView.classList.add('hidden');
+    historyView.classList.remove('hidden'); appHeader.classList.add('hidden'); controls.classList.add('hidden');
+    body.classList.add('history-open');
+    renderHistory(); window.scrollTo(0,0);
+  }
+  function closeHistory(){
+    historyView.classList.add('hidden'); appHeader.classList.remove('hidden'); controls.classList.remove('hidden');
+    body.classList.remove('history-open');
+    if(historyReturnView==='done'){
+      doneView.classList.remove('hidden'); mainBtn.textContent='Set up next run'; doneHistoryBtn.classList.remove('hidden');
+    } else {
+      setupView.classList.remove('hidden'); mainBtn.textContent='Start'; doneHistoryBtn.classList.add('hidden');
+    }
+  }
+
   // ---------- Run loop ----------
   function startWorkout(){
     buildPlan(); buildDots();
+    saveSettings();
     setTotal.textContent = cfg.sets;
     segIndex = 0; running = true; paused = false;
-    setDist=0; setTime=0; sesDist=0; sesTime=0; resetTracking();
+    setDist=0; setTime=0; sesDist=0; sesTime=0; walkDist=0; resetTracking();
+    halfwayCued=false;
+    clearTimeout(halfwayTimer);
+    $("halfwayNotice").classList.add('hidden');
     setupView.classList.add('hidden');
     doneView.classList.add('hidden');
+    historyView.classList.add('hidden');
     activeView.classList.remove('hidden');
     resetBtn.classList.remove('hidden');
+    doneHistoryBtn.classList.add('hidden');
+    $("historyBtn").classList.add('hidden');
     mainBtn.textContent = 'Pause';
     mainBtn.classList.add('paused');
     ensureAudio(); requestWake(); startGeo();
@@ -612,8 +884,11 @@
     segStart = performance.now();
     lastTickSecond = -1;
     applyPhaseTheme(seg.phase);
-    if(seg.phase==='run'){ setDist=0; setTime=0; legAnchor=null; frozenCount=0; }  // fresh set — zero walk data
-    else if(plan[segIndex-1] && plan[segIndex-1].phase==='run'){ closeTailLeg(); } // count the run's last seconds
+    if(seg.phase==='run'){
+      setDist=0; setTime=0; resetTracking();        // fresh set — zero walk data
+    } else if(plan[segIndex-1] && plan[segIndex-1].phase==='run'){
+      closeTailLeg(); resetTracking();              // count the run tail, then begin fresh walking fixes
+    }
     if(seg.phase!=='ready'){
       setNum.textContent = seg.set;
       paintDots(seg.set);
@@ -634,6 +909,16 @@
     const now = performance.now();
     const elapsed = paused ? (pausedAt - segStart)/1000 : (now - segStart)/1000;
     const remain = seg.dur - elapsed;
+    if(seg.phase!=='ready' && !halfwayCued){
+      const completedActive=plan.slice(1,segIndex).reduce((sum,item)=>sum+item.dur,0);
+      const activeElapsed=completedActive+Math.max(0,elapsed);
+      const activeTotal=cfg.sets*(cfg.run+cfg.walk);
+      if(activeElapsed>=activeTotal/2){
+        halfwayCued=true;
+        $("halfwayNotice").classList.remove('hidden');
+        halfwayTimer=setTimeout(cueHalfway,700); // let any interval-change cue finish first
+      }
+    }
 
     // display
     timeDisplay.textContent = seg.phase==='ready' ? Math.max(0,Math.ceil(remain)) : fmt(remain);
@@ -669,17 +954,27 @@
 
   function finish(){
     running=false; cancelAnimationFrame(raf); releaseWake(); stopGeo();
+    clearTimeout(halfwayTimer);
     cueFinish();
     activeView.classList.add('hidden');
     doneView.classList.remove('hidden');
     body.classList.remove('phase-run','phase-walk');
-    mainBtn.textContent='Again';
+    $("historyBtn").classList.remove('hidden');
+    mainBtn.textContent='Set up next run';
     mainBtn.classList.remove('paused');
+    resetBtn.classList.add('hidden');
+    doneHistoryBtn.classList.remove('hidden');
     const totalStr = fmtLoose(cfg.sets*(cfg.run+cfg.walk));
     const ses = sesTime>0 ? sesDist/sesTime : null;
+    const saved=recordSession();
     $("doneSummary").textContent = ses
-      ? `${cfg.sets} sets · ${totalStr} total. Session avg run pace ${mmss(1000/ses)}/km — ${(sesDist/1000).toFixed(2)} km measured over ${fmt(sesTime)} of running.`
-      : `${cfg.sets} sets · ${totalStr} total. Log it and recover well.`;
+      ? `${cfg.sets} sets · ${totalStr} total · Session avg run pace ${mmss(1000/ses)}/km · saved on this device`
+      : `${cfg.sets} sets · ${totalStr} total · saved on this device`;
+    $("doneStats").innerHTML=`
+      <div class="done-stat"><b>${fmtKm(saved.runDistanceM)}</b><span>running distance</span></div>
+      <div class="done-stat"><b>${fmtKm(saved.walkDistanceM)}</b><span>walking distance</span></div>
+      <div class="done-stat"><b>${ses?mmss(1000/ses):"—"}</b><span>average run pace /km</span></div>
+      <div class="done-stat"><b>${fmtDuration(saved.runDurationSec)}</b><span>planned running</span></div>`;
   }
 
   function togglePause(){
@@ -703,12 +998,15 @@
 
   function reset(){
     running=false; paused=false; cancelAnimationFrame(raf); releaseWake(); stopGeo();
+    clearTimeout(halfwayTimer);
     try{ speechSynthesis.cancel(); }catch(e){}
     activeView.classList.add('hidden');
     doneView.classList.add('hidden');
     setupView.classList.remove('hidden');
     body.classList.remove('phase-run','phase-walk');
     resetBtn.classList.add('hidden');
+    doneHistoryBtn.classList.add('hidden');
+    $("historyBtn").classList.remove('hidden');
     mainBtn.textContent='Start';
     mainBtn.classList.remove('paused');
     refreshSetup();
@@ -717,13 +1015,18 @@
   // ---------- Buttons ----------
   mainBtn.addEventListener('click',()=>{
     unlockAudio(); // synchronous inside the tap — required for iOS Safari sound
-    if(!running){
+    if(!doneView.classList.contains('hidden')){
+      reset();
+    } else if(!running){
       startWorkout();
     } else {
       togglePause();
     }
   });
   resetBtn.addEventListener('click', reset);
+  $("historyBtn").addEventListener('click',showHistory);
+  doneHistoryBtn.addEventListener('click',showHistory);
+  $("historyBackBtn").addEventListener('click',closeHistory);
 
   refreshSetup();
 })();

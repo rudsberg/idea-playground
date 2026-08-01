@@ -140,3 +140,88 @@ test('tempo stepper drives the target shown in the gauge and hint', async ({ pag
   await page.click('#mainBtn');
   await expect(page.locator('#gaugeTargetLbl')).toHaveText('6:40');
 });
+
+test('setup copy is phase-free and last workout settings persist on device', async ({ page }) => {
+  await page.goto(APP);
+  await expect(page.locator('.setup h2')).toHaveText('Workout');
+  await expect(page.locator('#planSummary')).not.toContainText(/phase/i);
+
+  await page.click('button[data-step="run"][data-d="15"]');
+  await page.click('button[data-step="walk"][data-d="-15"]');
+  await page.click('button[data-step="sets"][data-d="-1"]');
+  await page.click('button[data-step="pace"][data-d="5"]');
+  await page.reload();
+
+  await expect(page.locator('#runVal')).toHaveText('1:15');
+  await expect(page.locator('#walkVal')).toHaveText('1:45');
+  await expect(page.locator('#setsVal')).toHaveText('9');
+  await expect(page.locator('#paceVal')).toHaveText('6:35');
+});
+
+test('pace gauge uses a direct plus/minus 20 second target window', async ({ page }) => {
+  await page.goto(APP);
+  await page.click('#mainBtn');
+
+  const zone = await page.locator('#gaugeZone').evaluate(el => ({
+    left: parseFloat(el.style.left),
+    width: parseFloat(el.style.width),
+  }));
+  // At a 6:30 target, 6:50 and 6:10 map to about 95.1% and 105.4% of target speed.
+  expect(zone.left).toBeGreaterThan(40);
+  expect(zone.left).toBeLessThan(43);
+  expect(zone.width).toBeGreaterThan(16);
+  expect(zone.width).toBeLessThan(19);
+});
+
+test('progress history groups matching workouts and shows calculated progression', async ({ page }) => {
+  await page.addInitScript(() => {
+    const makeSession = (completedAt, run, walk, sets, distance) => ({
+      id: completedAt,
+      completedAt,
+      run,
+      walk,
+      sets,
+      paceSec: 390,
+      totalDurationSec: sets * (run + walk),
+      runDurationSec: sets * run,
+      walkDurationSec: sets * walk,
+      runDistanceM: distance * 0.55,
+      walkDistanceM: distance * 0.45,
+      avgRunPaceSec: 390,
+      measuredRunSec: sets * run,
+    });
+    localStorage.setItem('rehab-run-history-v1', JSON.stringify([
+      makeSession('2026-08-01T09:00:00.000Z', 120, 120, 8, 3480),
+      makeSession('2026-07-30T09:00:00.000Z', 120, 120, 8, 3320),
+      makeSession('2026-07-19T09:00:00.000Z', 60, 120, 10, 2620),
+      makeSession('2026-07-16T09:00:00.000Z', 60, 120, 10, 2500),
+    ]));
+  });
+  await page.goto(APP);
+  await page.click('#historyBtn');
+
+  await expect(page.locator('.workout-group')).toHaveCount(2);
+  await expect(page.locator('.workout-group').first()).toContainText('2:00 run');
+  await expect(page.locator('.workout-group').last()).toContainText('1:00 run');
+  await expect(page.locator('.transition')).toContainText('+100% interval');
+  await expect(page.locator('.transition')).toContainText('+60% total running');
+});
+
+test('halfway point shows and speaks a turn-back cue once', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.__spoken = [];
+    const speech = window.speechSynthesis;
+    speech.cancel = () => {};
+    speech.speak = utterance => window.__spoken.push(utterance.text);
+  });
+  await page.goto(APP);
+  for (let i = 0; i < 3; i++) await page.click('button[data-step="run"][data-d="-15"]');
+  for (let i = 0; i < 7; i++) await page.click('button[data-step="walk"][data-d="-15"]');
+  for (let i = 0; i < 8; i++) await page.click('button[data-step="sets"][data-d="-1"]');
+  await page.click('#mainBtn'); // 3s ready + 60s workout; halfway at ~33s wall time
+
+  await expect(page.locator('#halfwayNotice')).toBeVisible({ timeout: 38_000 });
+  await expect.poll(() => page.evaluate(() => window.__spoken.filter(text => /halfway/i.test(text)).length), {
+    timeout: 5_000,
+  }).toBe(1);
+});
