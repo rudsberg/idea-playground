@@ -12,6 +12,11 @@ const option = (name, fallback) => {
 const host = option("--host", "127.0.0.1");
 const port = Number(option("--port", "4173"));
 const html = await readFile(new URL("./index.html", import.meta.url));
+const iconAssets = new Map(await Promise.all([
+  "check-circle-fill.svg",
+  "circle-next.svg",
+  "circle-upcoming.svg",
+].map(async (name) => [`/assets/${name}`, await readFile(new URL(`./assets/${name}`, import.meta.url))])));
 
 const server = createServer((request, response) => {
   if (request.method !== "GET" && request.method !== "HEAD") {
@@ -21,6 +26,14 @@ const server = createServer((request, response) => {
   }
 
   const pathname = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`).pathname;
+  if (iconAssets.has(pathname)) {
+    response.writeHead(200, {
+      "Content-Type": "image/svg+xml",
+      "Cache-Control": "public, max-age=86400",
+    });
+    response.end(request.method === "HEAD" ? undefined : iconAssets.get(pathname));
+    return;
+  }
   if (pathname !== "/" && pathname !== "/index.html") {
     response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
     response.end("Not Found");

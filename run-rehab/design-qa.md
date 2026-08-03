@@ -2,59 +2,49 @@
 
 ## Comparison target
 
-- Source visual truth: `qa/05-current-start-audit.png` and the existing Progress references in `qa/13-target-pace-progress-390.png` / `qa/13-target-pace-progress-320.png`.
-- Combined source/implementation evidence: `qa/20-program-comparison.png`.
-- Program selection: `qa/14-program-select-390.png` and `qa/14-program-select-320.png`.
-- Program preview: `qa/15-program-preview-390.png` and `qa/15-program-preview-320.png`.
-- Guided next session: `qa/16-next-program-session-390.png` and `qa/16-next-program-session-320.png`.
-- New-user roadmap: `qa/17-program-roadmap-390.png` and `qa/17-program-roadmap-320.png`.
-- Migrated Level 6 state: `qa/18-migrated-level-6-390.png` and `qa/19-migrated-roadmap-390.png`.
-- Source and viewport implementation captures use device scale factor 1. Phone viewport captures are 390 × 844 and 320 × 844 CSS pixels; full-page roadmap captures preserve the same CSS width.
+- Source visual truth: `qa/32-live-level1-progress-one-of-three.png` (production before this change) plus the approved requirement that the current Level always show every required session.
+- Browser-rendered implementation: `qa/checklist-one-of-three-390-viewport.png`.
+- Combined comparison evidence: `qa/comparison-session-checklist.png`.
+- Additional state evidence: `qa/checklist-zero-of-three-390.png`, `qa/checklist-two-of-three-390.png`, and the matching 320px captures.
+- Source and implementation viewport: 390 × 844 CSS pixels at device scale factor 1. Both comparison images are 390 × 844 pixels, so no density normalization was required.
 
 ## State and intended outcome
 
-The existing dark mobile trainer is the visual source. The new flow must prevent a first-time user from entering the trainer until they open and accept the single available program, then replace manual level creation with a prescribed next session and a locked six-level roadmap. Existing local history must migrate into the program without inventing Joel's missing second Level 4 run.
+The comparison represents Level 1 with one of three prescribed sessions completed. The source only shows the recorded run, making the two remaining sessions invisible. The implementation keeps three stable rows: a completed session with its recorded metrics, a highlighted next session, and a muted upcoming session.
 
 ## Full-view comparison evidence
 
-`qa/20-program-comparison.png` places the source trainer, program selection, and program preview in one normalized comparison. The new screens preserve the navy canvas, system typeface, green primary action, blue/green workout semantics, compact uppercase labels, 16–22px card radii, and 20px mobile gutters. The onboarding screens add a stronger explanatory hierarchy without introducing a competing visual system.
-
-The guided home state keeps the source header and bottom action position. Its content now reads in the intended order: current Level, prescribed workout, required-session progress, tertiary custom action, then Start next session.
-
-The roadmap retains the existing compact one-row progression bridge and charging green rail. The current Level has exactly one glowing position marker; future Levels are readable but visibly subdued and labeled Locked. Completed history remains detailed and honest, including `1 of 2 sessions recorded` at Level 4.
+The combined 820px comparison shows that the new checklist preserves the existing navy canvas, program header, Level card, typography, metrics columns, progression bridge, green rail, and locked-Level treatment. The current card grows only by the two intentionally added session rows. At 390px and 320px, `document.documentElement.scrollWidth === innerWidth`; no horizontal overflow is introduced.
 
 ## Focused comparison evidence
 
-- At 320px, the program preview keeps all six prescriptions and the Accept program CTA within the page width; the title wraps intentionally without colliding with Back or Program preview.
-- At 320px, all three progression metrics remain on one row with no horizontal overflow.
-- At 390px, migrated history makes Level 6 current and shows Level 4 as completed through advancement while retaining the one recorded session.
-- Browser measurements report `scrollWidth === innerWidth` at 320px and 390px for program selection and preview.
+- The completed row uses a Bootstrap Icons check-circle asset, visible `Completed` text, the session number, date, distance, duration, and pace.
+- The next row uses a green outline icon, green left accent, subtle green surface, and visible `Next` text.
+- Upcoming rows use a muted outline icon, muted type, visible `Upcoming` text, and em dashes instead of invented metrics.
+- The current card remains the same height across 0/3, 1/3, and 2/3 states, preventing layout jumps as sessions are completed.
+- At 320px, every label and all four table columns remain readable without clipping or overlap.
 
 ## Findings and comparison history
 
-- No actionable P0, P1, or P2 differences remain.
-- The first comparison showed no structural overflow, clipped controls, unreadable locked states, or hierarchy regressions, so no visual fix loop was required.
-- P3 observation: the preview title wraps to two lines at 320px. This is acceptable because the program name remains the strongest element and the six-level list plus CTA stay visible without compression.
+- No actionable P0, P1, or P2 findings remain.
+- First implementation comparison: the three status states were distinct, all real metrics remained legible, the 320px layout had no overflow, and no visual correction loop was required.
+- P3 observation: the checklist adds 120px to the current Level card. This is intentional and limited to the current Level; completed historical Levels keep their compact recorded-only rows.
 
 ## Required fidelity surfaces
 
-- Fonts and typography: preserves the existing system font, optical weights, tabular numeric values, uppercase micro-labels, and 9–32px mobile hierarchy. Headings and prescriptions remain readable at both tested widths.
-- Spacing and layout rhythm: preserves 20px onboarding gutters, 16px Progress gutters, 8–18px internal spacing, and the source card radii. Primary actions remain comfortably tappable and visually anchored.
-- Colors and visual tokens: reuses the established background, card, border, run green, walk blue, muted text, and charging green progression palette. Locked states use opacity and muted borders without losing legibility.
-- Image quality and asset fidelity: the referenced product screens contain no raster product imagery, illustrations, logos, or non-standard icon assets. No placeholder imagery was introduced.
-- Copy and content: the program name, all six prescriptions, 15-session total, 6:30/km target, acceptance language, next-session language, custom-session boundary, and locked prerequisites match the approved model.
-- Accessibility and responsiveness: onboarding uses semantic buttons, the program card has an explicit accessible label, locked cards expose state in text, the progress strip has an accessible completion label, and no tested state has horizontal overflow.
+- Fonts and typography: retains the system font, established weights, tabular numerals, uppercase micro-labels, and existing 9–22px hierarchy. Session labels remain readable at both tested widths.
+- Spacing and layout rhythm: preserves 16px page gutters, existing card radius, 60px row height, metrics alignment, and the established rail-to-card spacing.
+- Colors and visual tokens: reuses the existing run green, muted blue-gray, card, border, and background tokens. Status is never communicated by color alone.
+- Image quality and asset fidelity: status icons are local SVG assets from Bootstrap Icons rather than text glyphs, emoji, or improvised CSS drawings. They render sharply at device scale factor 1.
+- Copy and content: visible labels are `Completed`, `Next`, and `Upcoming`; pending metrics use em dashes and completed metrics remain factual.
+- Accessibility and responsiveness: each row has an explicit status in visible text and its accessible label, decorative icon images use empty alt text, and all tested states avoid horizontal overflow.
 
 ## Primary interactions tested
 
-- Open the only available program, return to selection, reopen it, and explicitly accept it.
-- Persist acceptance on the device and enter Level 1, session 1 of 3.
-- Automatically migrate existing history and prescribe Level 6, session 1 of 2.
-- Keep a missing Level 4 session visible without blocking already-reached Levels.
-- Unlock Levels from fixed required-session counts and show a complete state after both Level 6 sessions.
-- Configure a custom run outside program progression and return to the prescribed program session.
-- Render current, locked, completed, and program-complete Progress states.
-- Preserve GPS pace measurement, ±20-second target tolerance, halfway cue, audio, private backfill, and duplicate-safe import.
-- Browser console and page errors: none in the captured onboarding, preview, guided session, new-user roadmap, and migrated Level 6 states.
+- Render Level 1 at 0/3, 1/3, and 2/3 without changing the number or position of rows.
+- Convert the next slot into a completed row while retaining recorded metrics.
+- After 3/3, unlock Level 2 and render its fresh 0/3 checklist while Level 1 moves into completed history.
+- Complete both Level 6 sessions without introducing another locked Level.
+- Browser console and page errors: none in the 390px and 320px checklist captures.
 
 final result: passed

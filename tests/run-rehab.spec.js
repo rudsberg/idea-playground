@@ -247,6 +247,12 @@ test('accepted program progress shows the current level and locked path ahead', 
   await expect(page.locator('.program-progress-head')).toContainText('Joel’s ACL Recovery');
   await expect(page.locator('.roadmap-current')).toContainText('Level 1');
   await expect(page.locator('.roadmap-current')).toContainText('0 of 3 sessions completed');
+  await expect(page.locator('.roadmap-current .session-slot')).toHaveCount(3);
+  await expect(page.locator('.roadmap-current .session-slot.completed')).toHaveCount(0);
+  await expect(page.locator('.roadmap-current .session-slot.next')).toHaveCount(1);
+  await expect(page.locator('.roadmap-current .session-slot.next')).toContainText('Session 1');
+  await expect(page.locator('.roadmap-current .session-slot.next')).toContainText('Next');
+  await expect(page.locator('.roadmap-current .session-slot.upcoming')).toHaveCount(2);
   await expect(page.locator('.locked-level')).toHaveCount(5);
   await expect(page.locator('.locked-level').first()).toContainText('Level 2');
   await expect(page.locator('.locked-level').last()).toContainText('Level 6');
@@ -254,6 +260,62 @@ test('accepted program progress shows the current level and locked path ahead', 
   await expect(page.locator('.transition').first()).toContainText('+100%');
   await expect(page.locator('.transition').first()).toContainText('0% speed');
   await expect(page.locator('#historyContent')).not.toContainText(/phase/i);
+});
+
+test('current level checklist reveals completed, next, and upcoming session slots', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('rehab-run-program-v1', JSON.stringify({ id: 'joels-acl-recovery-v1' }));
+    if (localStorage.getItem('rehab-run-history-v1')) return;
+    localStorage.setItem('rehab-run-history-v1', JSON.stringify([{
+      id: 'level-1-session-1', completedAt: '2026-08-02T08:00:00.000Z',
+      run: 60, walk: 120, sets: 10, paceSec: 390, level: 1, sessionKind: 'level',
+      totalDurationSec: 1800, runDurationSec: 600, walkDurationSec: 1200,
+      totalDistanceM: 4030, runDistanceM: 1540, walkDistanceM: 2490,
+      avgRunPaceSec: 544, avgPaceSec: 544, paceKind: 'run',
+    }]));
+  });
+  await page.goto(APP);
+  await page.click('#historyBtn');
+
+  const current = page.locator('.roadmap-current');
+  await expect(current.locator('.session-slot')).toHaveCount(3);
+  await expect(current.locator('.session-slot.completed')).toHaveCount(1);
+  await expect(current.locator('.session-slot.completed')).toContainText('Session 1');
+  await expect(current.locator('.session-slot.completed')).toContainText('Completed');
+  await expect(current.locator('.session-slot.completed')).toContainText('4.03');
+  await expect(current.locator('.session-slot.next')).toContainText('Session 2');
+  await expect(current.locator('.session-slot.next')).toContainText('Next');
+  await expect(current.locator('.session-slot.upcoming')).toContainText('Session 3');
+  await expect(current.locator('.session-slot.upcoming')).toContainText('Upcoming');
+  await expect(current.locator('.session-slot.completed img')).toHaveAttribute('src', 'assets/check-circle-fill.svg');
+
+  await page.evaluate(() => {
+    const history = JSON.parse(localStorage.getItem('rehab-run-history-v1'));
+    history.unshift({
+      ...history[0], id: 'level-1-session-2', completedAt: '2026-08-03T08:00:00.000Z',
+      totalDistanceM: 4200, runDistanceM: 1600, walkDistanceM: 2600,
+    });
+    localStorage.setItem('rehab-run-history-v1', JSON.stringify(history));
+  });
+  await page.reload();
+  await page.click('#historyBtn');
+  await expect(page.locator('.roadmap-current .session-slot.completed')).toHaveCount(2);
+  await expect(page.locator('.roadmap-current .session-slot.next')).toContainText('Session 3');
+  await expect(page.locator('.roadmap-current .session-slot.upcoming')).toHaveCount(0);
+
+  await page.evaluate(() => {
+    const history = JSON.parse(localStorage.getItem('rehab-run-history-v1'));
+    history.unshift({
+      ...history[0], id: 'level-1-session-3', completedAt: '2026-08-04T08:00:00.000Z',
+    });
+    localStorage.setItem('rehab-run-history-v1', JSON.stringify(history));
+  });
+  await page.reload();
+  await page.click('#historyBtn');
+  await expect(page.locator('.roadmap-current')).toContainText('Level 2');
+  await expect(page.locator('.roadmap-current .session-slot.next')).toContainText('Session 1');
+  await expect(page.locator('.completed-journey .workout-group').first()).toContainText('Level 1');
+  await expect(page.locator('.completed-journey .workout-group').first().locator('.session-row')).toHaveCount(3);
 });
 
 test('completing both Level 6 sessions finishes the program without another locked level', async ({ page }) => {
@@ -337,12 +399,14 @@ test('private backfill imports the Strava journey into five workout groups witho
   expect(progressionMetrics).toHaveLength(3);
   expect(new Set(progressionMetrics.map(metric => metric.top)).size).toBe(1);
   expect(Math.max(...progressionMetrics.map(metric => metric.right))).toBeLessThanOrEqual(320);
-  await expect(page.locator('.session-row')).toHaveCount(11);
+  await expect(page.locator('.session-row:not(.pending)')).toHaveCount(11);
+  await expect(page.locator('.roadmap-current .session-slot.pending')).toHaveCount(1);
   await expect(page.locator('#historyContent')).not.toContainText(/estimated|est\./i);
   await expect(page.locator('#historyContent')).not.toContainText(/phase/i);
 
   await page.goto(importUrl);
   await page.click('#importHistoryBtn');
   await page.click('#importProgressBtn');
-  await expect(page.locator('.session-row')).toHaveCount(11);
+  await expect(page.locator('.session-row:not(.pending)')).toHaveCount(11);
+  await expect(page.locator('.roadmap-current .session-slot.pending')).toHaveCount(1);
 });

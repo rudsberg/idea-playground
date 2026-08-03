@@ -243,7 +243,7 @@
   .group-title .walk-copy{color:var(--walk)}
   .group-meta{color:var(--muted);font-size:12px;line-height:1.35;margin-top:7px}
   .session-table{border-top:1px solid var(--ring-track)}
-  .session-head,.session-row{display:grid;grid-template-columns:minmax(78px,1.12fr) repeat(3,minmax(56px,.82fr));gap:7px;align-items:center;padding-inline:15px}
+  .session-head,.session-row{display:grid;grid-template-columns:minmax(94px,1.3fr) repeat(3,minmax(52px,.76fr));gap:7px;align-items:center;padding-inline:15px}
   .session-head{min-height:34px;color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.5px;line-height:1.15;text-transform:uppercase}
   .session-row{border-top:1px solid rgba(37,46,73,.72);min-height:60px;font-variant-numeric:tabular-nums}
   .session-row:first-of-type{border-top:none}
@@ -251,6 +251,21 @@
   .session-date span,.session-value span{display:block;color:var(--muted);font-size:10px;line-height:1.2;margin-top:3px}
   .session-value.distance b{color:var(--run)}
   .session-value{text-align:right}
+  .session-slot{position:relative}
+  .session-slot.completed{background:rgba(34,197,94,.025)}
+  .session-slot.next{background:rgba(34,197,94,.075);box-shadow:inset 2px 0 0 rgba(74,222,128,.72)}
+  .session-slot.upcoming{background:rgba(11,16,32,.18)}
+  .session-slot-main{display:flex;align-items:center;gap:7px;min-width:0}
+  .session-slot-main img{width:15px;height:15px;flex:0 0 15px}
+  .session-slot-main b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .session-slot .session-date>span{padding-left:22px;white-space:nowrap}
+  .session-slot.completed .session-date>span{color:#86efac}
+  .session-slot.next .session-date b{color:var(--text)}
+  .session-slot.next .session-date>span{color:#86efac;font-weight:700}
+  .session-slot.upcoming .session-date b,.session-slot.upcoming .session-value b{color:#68718e}
+  .session-slot.upcoming .session-date span,.session-slot.upcoming .session-value span{color:#59627f}
+  .session-slot.pending .session-value b{color:#68718e}
+  .session-slot.pending .session-value span{visibility:hidden}
   .transition{position:relative;margin:0 14px;padding:10px 0 10px 32px}
   /* History is newest-first: the rail charges upward from the older level below. */
   .transition::before{content:"";position:absolute;left:14px;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#86efac 0%,#22c55e 38%,#15803d 68%,#14532d 100%);border-radius:999px;box-shadow:0 -3px 12px rgba(74,222,128,.32)}
@@ -332,7 +347,7 @@
     .next-context h2{font-size:22px}
     .setup{padding-inline:14px}
     .group-title{font-size:20px}
-    .session-head,.session-row{grid-template-columns:minmax(68px,1.08fr) repeat(3,minmax(50px,.78fr));padding-inline:12px;gap:5px}
+    .session-head,.session-row{grid-template-columns:minmax(88px,1.28fr) repeat(3,minmax(47px,.72fr));padding-inline:12px;gap:5px}
     .session-date b,.session-value b{font-size:12px}
     .transition{margin-inline:10px;padding-left:28px}
     .transition::before{left:12px}
@@ -1194,6 +1209,33 @@
       <div class="session-value"><b>${pace?mmss(pace):"—"}</b><span>${session.paceKind==="activity"?"/km":"/km run"}</span></div>
     </div>`;
   }
+  function currentSessionRows(group,requiredSessions){
+    const completed=[...group.sessions].sort((a,b)=>new Date(a.completedAt)-new Date(b.completedAt));
+    return Array.from({length:requiredSessions},(_,index)=>{
+      const session=completed[index];
+      const number=index+1;
+      if(session){
+        const date=dateLabel(session.completedAt);
+        const distance=sessionDistance(session);
+        const pace=session.avgPaceSec||session.avgRunPaceSec;
+        return `<div class="session-row session-slot completed" aria-label="Session ${number}, completed">
+          <div class="session-date"><div class="session-slot-main"><img src="assets/check-circle-fill.svg" alt=""><b>Session ${number}</b></div><span>Completed · ${date.detail}</span></div>
+          <div class="session-value distance"><b>${distance?(distance/1000).toFixed(2):"—"}</b><span>km</span></div>
+          <div class="session-value"><b>${fmtDuration(session.totalDurationSec)}</b><span>total</span></div>
+          <div class="session-value"><b>${pace?mmss(pace):"—"}</b><span>${session.paceKind==="activity"?"/km":"/km run"}</span></div>
+        </div>`;
+      }
+      const isNext=index===completed.length;
+      const state=isNext?"Next":"Upcoming";
+      const icon=isNext?"circle-next.svg":"circle-upcoming.svg";
+      return `<div class="session-row session-slot pending ${isNext?'next':'upcoming'}" aria-label="Session ${number}, ${state.toLowerCase()}">
+        <div class="session-date"><div class="session-slot-main"><img src="assets/${icon}" alt=""><b>Session ${number}</b></div><span>${state}</span></div>
+        <div class="session-value"><b>—</b><span>Pending</span></div>
+        <div class="session-value"><b>—</b><span>Pending</span></div>
+        <div class="session-value"><b>—</b><span>Pending</span></div>
+      </div>`;
+    }).join("");
+  }
   function groupMarkup(group,currentLevel,status="completed"){
     const levelPlan=programLevel(group.level);
     const target=PROGRAM.paceSec;
@@ -1207,9 +1249,9 @@
         <div class="group-title"><span class="run-copy">${fmtLoose(group.run)} run</span> · <span class="walk-copy">${fmtLoose(group.walk)} walk</span> × ${group.sets}</div>
         <div class="group-meta">${meta}</div>
       </div>
-      ${group.sessions.length?`<div class="session-table">
-        <div class="session-head"><span>Date</span><span style="text-align:right">Distance</span><span style="text-align:right">Duration</span><span style="text-align:right">Avg pace</span></div>
-        ${group.sessions.map(historyRow).join("")}
+      ${status==="current"||group.sessions.length?`<div class="session-table">
+        <div class="session-head"><span>${status==="current"?"Session":"Date"}</span><span style="text-align:right">Distance</span><span style="text-align:right">Duration</span><span style="text-align:right">Avg pace</span></div>
+        ${status==="current"?currentSessionRows(group,levelPlan.sessions):group.sessions.map(historyRow).join("")}
       </div>`:""}
     </section>`;
   }
