@@ -41,6 +41,8 @@
   body.phase-walk{background:radial-gradient(120% 90% at 50% -10%, #0d3450 0%, #0b1020 60%)}
   body.history-open{overflow:auto;display:block}
   body.history-open main{justify-content:flex-start;align-items:stretch;padding:0}
+  body.onboarding-open{overflow:auto}
+  body.onboarding-open main{justify-content:center;min-height:100dvh;padding-block:24px}
 
   .app-header{
     display:grid;grid-template-columns:64px minmax(0,1fr) 64px;align-items:center;text-align:center;
@@ -105,6 +107,39 @@
 
   /* Setup panel */
   #setupView{gap:12px;max-width:340px}
+  #programSelectView,#programPreviewView{width:100%;max-width:380px;align-self:center}
+  .program-onboarding{display:flex;flex-direction:column;gap:18px;width:100%;padding:8px 0 24px}
+  .program-onboarding-head{text-align:center;padding:0 8px}
+  .program-onboarding-head .eyebrow{margin-bottom:8px}
+  .program-onboarding-head h2{font-size:32px;line-height:1.06;letter-spacing:-.7px}
+  .program-onboarding-head p{color:var(--muted);font-size:13px;line-height:1.5;margin:10px auto 0;max-width:310px}
+  .program-card{width:100%;padding:18px;text-align:left;background:linear-gradient(145deg,rgba(21,27,48,.98),rgba(15,61,36,.48));border:1px solid rgba(74,222,128,.32);border-radius:22px;box-shadow:0 14px 36px rgba(0,0,0,.2)}
+  .program-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .program-card-top span{color:#86efac;font-size:10px;font-weight:800;letter-spacing:.65px;text-transform:uppercase}
+  .program-card-top b{color:var(--muted);font-size:11px}
+  .program-card h3{font-size:23px;line-height:1.15;letter-spacing:-.35px;margin-top:12px}
+  .program-card p{color:var(--muted);font-size:12px;line-height:1.45;margin-top:7px}
+  .program-card-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin-top:17px;background:rgba(37,46,73,.78);border-radius:14px;overflow:hidden}
+  .program-card-meta div{background:rgba(11,16,32,.64);padding:10px 8px;text-align:center}
+  .program-card-meta b{display:block;color:var(--text);font-size:14px}
+  .program-card-meta span{display:block;color:var(--muted);font-size:9px;font-weight:700;margin-top:3px;text-transform:uppercase;letter-spacing:.4px}
+  .program-card-cta{display:flex;align-items:center;justify-content:space-between;margin-top:16px;color:var(--text);font-size:13px;font-weight:800}
+  .program-card-cta span:last-child{color:var(--run);font-size:18px}
+  .program-preview-nav{display:grid;grid-template-columns:54px 1fr 54px;align-items:center}
+  .program-preview-nav button{justify-self:start;background:transparent;padding:9px 0;color:var(--text);font-size:13px}
+  .program-preview-nav span{text-align:center;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.55px;text-transform:uppercase}
+  .program-preview-head{text-align:center;padding:13px 12px 10px}
+  .program-preview-head h2{font-size:29px;line-height:1.08;letter-spacing:-.6px}
+  .program-preview-head p{color:var(--muted);font-size:12px;line-height:1.45;margin-top:8px}
+  .program-level-list{border:1px solid var(--ring-track);border-radius:20px;background:rgba(21,27,48,.72);overflow:hidden}
+  .program-level-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:56px;padding:10px 13px;border-top:1px solid rgba(37,46,73,.72)}
+  .program-level-row:first-child{border-top:none}
+  .program-level-number{width:28px;height:28px;border-radius:9px;background:rgba(34,197,94,.13);color:#86efac;display:grid;place-items:center;font-size:11px;font-weight:800}
+  .program-level-recipe b{display:block;font-size:13px;line-height:1.2}
+  .program-level-recipe span{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+  .program-level-count{text-align:right;color:var(--muted);font-size:10px;font-weight:700;white-space:nowrap}
+  .accept-program-btn{width:100%;padding:18px;font-size:17px;background:var(--run);color:#04210f;margin-top:14px}
+  .program-storage-note{text-align:center;color:var(--muted);font-size:10px;line-height:1.4;padding:0 14px}
   .next-context{width:100%;padding:0 4px 2px}
   .next-kicker{display:flex;align-items:center;gap:6px;color:var(--run);font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase}
   .next-kicker .current-label::before{content:"\00b7";margin-right:6px;color:var(--muted)}
@@ -112,12 +147,6 @@
   .next-context h2 .run-copy{color:var(--run)}
   .next-context h2 .walk-copy{color:var(--walk)}
   .next-meta{color:var(--muted);font-size:12px;line-height:1.35;margin-top:7px}
-  .setup-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;padding:4px;background:rgba(21,27,48,.72);border:1px solid var(--ring-track);border-radius:16px}
-  .setup-choice{min-width:0;padding:10px 8px;border-radius:12px;background:transparent;color:var(--muted);text-align:left}
-  .setup-choice b{display:block;font-size:13px;color:inherit;line-height:1.15}
-  .setup-choice small{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-top:4px;white-space:nowrap}
-  .setup-choice.selected{background:var(--ring-track);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.16)}
-  .setup-choice.selected small{color:#aeb6ce}
   .setup{
     background:var(--card);border:1px solid var(--ring-track);border-radius:20px;padding:15px 17px 16px;width:100%;max-width:340px;
     display:flex;flex-direction:column;gap:12px;
@@ -131,15 +160,16 @@
   .stepper button{width:38px;height:38px;background:var(--bg);color:var(--text);font-size:22px;border-radius:12px;line-height:1}
   .stepper .val{min-width:64px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
   .stepper .val small{display:block;font-size:11px;color:var(--muted);font-weight:500}
-  .level-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ring-track);padding-top:11px;margin-top:1px}
-  .level-preview div{text-align:center;border-left:1px solid var(--ring-track)}
-  .level-preview div:first-child{border-left:none}
-  .level-preview b{display:block;color:#86efac;font-size:13px;font-variant-numeric:tabular-nums}
-  .level-preview span{display:block;color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.45px;text-transform:uppercase;margin-top:3px}
-  .level-preview-note{grid-column:1/-1!important;border-left:none!important;color:var(--muted);font-size:10px;line-height:1.3;margin-top:8px}
   .custom-session-btn{background:transparent;color:var(--muted);font-size:12px;padding:5px 10px;text-decoration:underline;text-decoration-color:rgba(139,147,173,.45);text-underline-offset:3px}
   .custom-session-btn.active{color:var(--walk);text-decoration-color:rgba(56,189,248,.45)}
   .custom-note{color:var(--muted);font-size:10px;text-align:center;margin-top:-7px}
+  .program-session-card{background:var(--card);border:1px solid var(--ring-track);border-radius:20px;padding:15px 17px 16px;width:100%;max-width:340px}
+  .program-session-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .program-session-top b{font-size:12px}
+  .program-session-top span{color:#86efac;font-size:10px;font-weight:800;letter-spacing:.45px;text-transform:uppercase}
+  .program-session-progress{height:5px;border-radius:999px;background:var(--ring-track);overflow:hidden;margin-top:11px}
+  .program-session-progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#15803d,#4ade80);transition:width .25s ease}
+  .program-session-copy{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);font-size:10px;margin-top:8px}
 
   .hint{font-size:12px;color:var(--muted);text-align:center;line-height:1.5;padding:0 10px;opacity:.85;max-width:340px;margin-inline:auto}
   .hidden{display:none!important}
@@ -224,7 +254,6 @@
   .transition{position:relative;margin:0 14px;padding:10px 0 10px 32px}
   /* History is newest-first: the rail charges upward from the older level below. */
   .transition::before{content:"";position:absolute;left:14px;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#86efac 0%,#22c55e 38%,#15803d 68%,#14532d 100%);border-radius:999px;box-shadow:0 -3px 12px rgba(74,222,128,.32)}
-  .transition.current-position::after{content:"";position:absolute;left:10px;top:-1px;width:12px;height:12px;border-radius:50%;background:#bbf7d0;border:2px solid #22c55e;box-shadow:0 0 0 4px var(--bg),0 0 14px rgba(74,222,128,.62)}
   .transition-card{position:relative;background:rgba(15,21,40,.92);border:1px solid rgba(59,73,111,.72);border-radius:14px;overflow:hidden;box-shadow:0 5px 18px rgba(0,0,0,.12)}
   .transition-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:29px;padding:6px 10px;border-bottom:1px solid rgba(37,46,73,.72)}
   .transition-head span{color:#86efac;font-size:9px;font-weight:800;letter-spacing:.65px;text-transform:uppercase}
@@ -239,6 +268,30 @@
   .transition-metric small.positive{color:#86efac}
   .transition-metric small.negative{color:#fda4af}
   .history-groups{display:flex;flex-direction:column}
+  .program-progress-head{border:1px solid rgba(74,222,128,.28);border-radius:20px;padding:15px 16px;background:linear-gradient(145deg,rgba(21,27,48,.94),rgba(15,61,36,.3));margin-bottom:14px}
+  .program-progress-title{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .program-progress-title span{display:block;color:#86efac;font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:5px}
+  .program-progress-title b{display:block;font-size:18px;line-height:1.2}
+  .program-progress-title strong{font-size:11px;color:var(--muted);white-space:nowrap;padding-top:2px}
+  .program-steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin-top:13px}
+  .program-step{height:5px;border-radius:999px;background:var(--ring-track)}
+  .program-step.complete{background:#15803d}
+  .program-step.current{background:linear-gradient(90deg,#22c55e,#86efac);box-shadow:0 0 9px rgba(74,222,128,.35)}
+  .roadmap-label{color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin:17px 4px 9px}
+  .roadmap-current{position:relative}
+  .roadmap-current::before{content:"";position:absolute;z-index:2;left:-5px;top:17px;width:10px;height:10px;border-radius:50%;background:#bbf7d0;border:2px solid #22c55e;box-shadow:0 0 0 4px var(--bg),0 0 14px rgba(74,222,128,.62)}
+  .locked-level{border:1px solid rgba(37,46,73,.8);border-radius:16px;background:rgba(21,27,48,.42);padding:13px 15px;margin-top:8px;opacity:.72}
+  .locked-level-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .locked-level-top span{color:var(--muted);font-size:9px;font-weight:800;letter-spacing:.55px;text-transform:uppercase}
+  .locked-level-top b{color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.45px}
+  .locked-level-recipe{font-size:15px;font-weight:800;line-height:1.25;margin-top:7px}
+  .locked-level-recipe .run-copy{color:rgba(34,197,94,.72)}
+  .locked-level-recipe .walk-copy{color:rgba(56,189,248,.72)}
+  .locked-level-meta{color:var(--muted);font-size:10px;line-height:1.35;margin-top:5px}
+  .completed-journey{margin-top:2px}
+  .program-complete-note{border:1px solid rgba(74,222,128,.28);border-radius:16px;padding:15px;text-align:center;background:rgba(34,197,94,.08);margin-bottom:12px}
+  .program-complete-note b{display:block;font-size:16px}
+  .program-complete-note span{display:block;color:var(--muted);font-size:11px;line-height:1.4;margin-top:5px}
   .history-note{text-align:center;color:var(--muted);font-size:11px;line-height:1.45;margin-top:18px;padding:0 16px}
   .other-history{margin-top:16px;border:1px solid var(--ring-track);border-radius:18px;overflow:hidden;background:rgba(21,27,48,.56)}
   .other-head{padding:14px 16px;border-bottom:1px solid var(--ring-track)}
@@ -278,18 +331,18 @@
     .header-action{font-size:12px}
     .next-context h2{font-size:22px}
     .setup{padding-inline:14px}
-    .setup-choice{padding-inline:7px}
-    .setup-choice b{font-size:12px}
     .group-title{font-size:20px}
     .session-head,.session-row{grid-template-columns:minmax(68px,1.08fr) repeat(3,minmax(50px,.78fr));padding-inline:12px;gap:5px}
     .session-date b,.session-value b{font-size:12px}
     .transition{margin-inline:10px;padding-left:28px}
     .transition::before{left:12px}
-    .transition.current-position::after{left:8px}
     .transition-head{padding-inline:8px}
     .transition-metric{padding-inline:4px}
     .transition-metric b{font-size:10px}
     .transition-metric small{font-size:8px}
+    .program-onboarding-head h2{font-size:29px}
+    .program-card{padding-inline:15px}
+    .program-level-row{padding-inline:11px;gap:8px}
   }
   @media (max-height:720px){
     .app-header{padding-top:10px}
@@ -310,6 +363,47 @@
 </header>
 
 <main>
+  <!-- PROGRAM ONBOARDING -->
+  <section id="programSelectView" class="hidden">
+    <div class="program-onboarding">
+      <div class="program-onboarding-head">
+        <div class="eyebrow">Your recovery path</div>
+        <h2>Choose a program</h2>
+        <p>Follow a structured sequence of run and walk sessions, one level at a time.</p>
+      </div>
+      <button class="program-card" id="programCard" type="button" aria-label="Preview Joel's ACL Recovery">
+        <div class="program-card-top"><span>Running rehab</span><b>6 levels</b></div>
+        <h3>Joel’s ACL Recovery</h3>
+        <p>A gradual return-to-running program built around repeatable intervals and steady progression.</p>
+        <div class="program-card-meta">
+          <div><b>6</b><span>Levels</span></div>
+          <div><b>15</b><span>Sessions</span></div>
+          <div><b>6:30</b><span>Target /km</span></div>
+        </div>
+        <div class="program-card-cta"><span>View program</span><span aria-hidden="true">›</span></div>
+      </button>
+      <p class="program-storage-note">Program acceptance and progress stay on this device.</p>
+    </div>
+  </section>
+
+  <section id="programPreviewView" class="hidden">
+    <div class="program-onboarding">
+      <div class="program-preview-nav">
+        <button id="programPreviewBackBtn" type="button">Back</button>
+        <span>Program preview</span>
+        <i></i>
+      </div>
+      <div class="program-preview-head">
+        <div class="eyebrow">6-level running program</div>
+        <h2>Joel’s ACL Recovery</h2>
+        <p>Complete the prescribed sessions to unlock each next level.</p>
+      </div>
+      <div class="program-level-list" id="programPreviewLevels"></div>
+      <button class="accept-program-btn" id="acceptProgramBtn" type="button">Accept program</button>
+      <p class="program-storage-note">15 sessions · Target pace 6:30 /km throughout</p>
+    </div>
+  </section>
+
   <!-- SETUP -->
   <section id="setupView">
     <div class="next-context" id="nextContext">
@@ -317,11 +411,12 @@
       <h2 id="currentWorkoutTitle"><span class="run-copy">1:00 run</span> · <span class="walk-copy">2:00 walk</span> × 10</h2>
       <div class="next-meta" id="currentLevelMeta">Your first level</div>
     </div>
-    <div class="setup-choices" id="setupChoices" role="tablist" aria-label="Next workout choice">
-      <button class="setup-choice selected" id="anotherSessionBtn" data-mode="another" role="tab" aria-selected="true" type="button"><b>Another session</b><small id="anotherSessionHint">Keep current level</small></button>
-      <button class="setup-choice" id="levelUpBtn" data-mode="levelup" role="tab" aria-selected="false" type="button"><b>Level up</b><small id="levelUpHint">Set up next level</small></button>
+    <div class="program-session-card hidden" id="programSessionCard">
+      <div class="program-session-top"><b id="programSessionLabel">Session 1 of 3</b><span id="programSessionState">Next session</span></div>
+      <div class="program-session-progress"><span id="programSessionProgress" style="width:0%"></span></div>
+      <div class="program-session-copy"><span id="programSessionCompleted">0 completed</span><span id="programSessionRemaining">3 remaining</span></div>
     </div>
-    <div class="setup">
+    <div class="setup" id="setupPanel">
       <div class="setup-head"><h3 id="setupTitle">Level 1 workout</h3><span id="setupHint">Your starting settings</span></div>
       <div class="field">
         <label>Run</label>
@@ -354,12 +449,6 @@
           <div class="val"><span id="paceVal">6:30</span><small>min / km</small></div>
           <button data-step="pace" data-d="5">+</button>
         </div>
-      </div>
-      <div class="level-preview hidden" id="levelPreview" aria-live="polite">
-        <div><b id="previewInterval">0%</b><span>Run interval</span></div>
-        <div><b id="previewTotalRun">0%</b><span>Total running</span></div>
-        <div><b id="previewTargetPace">0%</b><span>Target speed</span></div>
-        <div class="level-preview-note" id="levelPreviewNote">Adjust run, walk, or sets to define the next level.</div>
       </div>
     </div>
     <button class="custom-session-btn" id="customSessionBtn" type="button">Set up a custom session</button>
@@ -456,6 +545,20 @@
   // ---------- Config ----------
   const SETTINGS_KEY = "rehab-run-settings-v1";
   const HISTORY_KEY = "rehab-run-history-v1";
+  const PROGRAM_KEY = "rehab-run-program-v1";
+  const PROGRAM = {
+    id:"joels-acl-recovery-v1",
+    name:"Joel’s ACL Recovery",
+    paceSec:390,
+    levels:[
+      {level:1,run:60,walk:120,sets:10,sessions:3},
+      {level:2,run:120,walk:120,sets:10,sessions:3},
+      {level:3,run:180,walk:60,sets:10,sessions:3},
+      {level:4,run:300,walk:60,sets:7,sessions:2},
+      {level:5,run:450,walk:60,sets:5,sessions:2},
+      {level:6,run:600,walk:60,sets:5,sessions:2}
+    ]
+  };
   const defaults = { run: 60, walk: 120, sets: 10, paceSec: 390 };
   const cfg = { ...defaults };  // paceSec = target min/km, in seconds
   const READY = 3; // countdown seconds before first run
@@ -484,6 +587,7 @@
   const $ = id => document.getElementById(id);
   const body = document.body;
   const setupView = $("setupView"), activeView = $("activeView"), doneView = $("doneView"), historyView = $("historyView"), importView = $("importView");
+  const programSelectView=$("programSelectView"), programPreviewView=$("programPreviewView");
   const mainBtn = $("mainBtn"), resetBtn = $("resetBtn"), doneHistoryBtn = $("doneHistoryBtn");
   const appHeader=$("appHeader"), controls=document.querySelector('.controls');
   const phaseLabel = $("phaseLabel"), timeDisplay = $("timeDisplay"), paceHint = $("paceHint");
@@ -502,7 +606,7 @@
   let wakeLock = null;
   let halfwayCued = false, halfwayTimer = null;
   let historyReturnView = "setup";
-  let setupMode = "another";
+  let setupMode = "program";
 
   // ---------- Helpers ----------
   const fmt = s => { s = Math.max(0, Math.ceil(s)); const m = Math.floor(s/60); const r = s%60; return m+":"+String(r).padStart(2,"0"); };
@@ -528,32 +632,51 @@
     }
   }
 
-  // ---------- Setup UI ----------
-  function levelContext(){
-    const levelSessions=loadHistory().filter(session=>session.sessionKind==="level" && Number.isFinite(session.level));
-    const currentLevel=levelSessions.reduce((max,session)=>Math.max(max,session.level),0);
-    const sessions=currentLevel ? levelSessions.filter(session=>session.level===currentLevel) : [];
-    return {hasLevel:currentLevel>0,currentLevel:currentLevel||1,sessions,baseline:sessions[0]||null};
+  // ---------- Program + setup UI ----------
+  const programLevel=level=>PROGRAM.levels.find(item=>item.level===level)||PROGRAM.levels[0];
+  function programContext(){
+    const sessions=loadHistory().filter(session=>session.sessionKind==="level" && Number.isFinite(session.level));
+    const counts=new Map(PROGRAM.levels.map(level=>[level.level,0]));
+    sessions.forEach(session=>counts.set(session.level,(counts.get(session.level)||0)+1));
+    const highest=sessions.reduce((max,session)=>Math.max(max,session.level),0);
+    let currentLevel=highest||1;
+    const highestPlan=programLevel(currentLevel);
+    if(highest && currentLevel<PROGRAM.levels.length && (counts.get(currentLevel)||0)>=highestPlan.sessions) currentLevel++;
+    const complete=currentLevel===PROGRAM.levels.length && (counts.get(currentLevel)||0)>=programLevel(currentLevel).sessions;
+    const completedLevels=new Set();
+    PROGRAM.levels.forEach(level=>{
+      if(level.level<highest || (level.level===highest && (counts.get(level.level)||0)>=level.sessions) || complete) completedLevels.add(level.level);
+    });
+    const recipe=programLevel(currentLevel);
+    const currentSessions=sessions.filter(session=>session.level===currentLevel);
+    return {sessions,counts,highest,currentLevel,recipe,currentSessions,completedLevels,complete};
   }
-  function recipeChanged(baseline){
-    return !!baseline && (cfg.run!==baseline.run || cfg.walk!==baseline.walk || cfg.sets!==baseline.sets || cfg.paceSec!==baseline.paceSec);
+  function hasAcceptedProgram(){ return readJson(PROGRAM_KEY,null)?.id===PROGRAM.id; }
+  function enrollExistingHistory(){
+    if(hasAcceptedProgram()) return true;
+    if(loadHistory().length){
+      writeJson(PROGRAM_KEY,{id:PROGRAM.id,acceptedAt:new Date().toISOString(),migrated:true});
+      return true;
+    }
+    return false;
+  }
+  function applyProgramRecipe(level){
+    const recipe=programLevel(level);
+    cfg.run=recipe.run; cfg.walk=recipe.walk; cfg.sets=recipe.sets; cfg.paceSec=PROGRAM.paceSec;
+    saveSettings();
   }
   function setSetupMode(mode,restore=true){
-    const context=levelContext();
-    setupMode=!context.hasLevel && mode==="levelup" ? "another" : mode;
-    if(restore && context.baseline){
-      cfg.run=context.baseline.run;
-      cfg.walk=context.baseline.walk;
-      cfg.sets=context.baseline.sets;
-      if(context.baseline.paceSec>0) cfg.paceSec=context.baseline.paceSec;
-      saveSettings();
-    }
+    setupMode=mode==="custom"?"custom":"program";
+    if(setupMode==="program" && restore) applyProgramRecipe(programContext().currentLevel);
     refreshSetup();
   }
   function refreshSetup(){
-    const context=levelContext();
+    const context=programContext();
     const level=context.currentLevel;
-    const baseline=context.baseline;
+    const recipe=context.recipe;
+    if(setupMode==="program" && (cfg.run!==recipe.run || cfg.walk!==recipe.walk || cfg.sets!==recipe.sets || cfg.paceSec!==PROGRAM.paceSec)){
+      applyProgramRecipe(level);
+    }
     $("runVal").textContent  = fmtLoose(cfg.run);
     $("walkVal").textContent = fmtLoose(cfg.walk);
     $("setsVal").textContent = cfg.sets;
@@ -563,54 +686,38 @@
     $("paceVal").textContent = paceLabel();
     $("runPaceLbl").textContent = `at ${paceLabel()} /km`;
     $("paceHint").innerHTML = `target <b>${paceLabel()}</b> /km`;
-    $("currentLevelLabel").textContent=`Level ${level}`;
-    $("currentLevelState").textContent=context.hasLevel?"Current":"Ready";
-    $("currentWorkoutTitle").innerHTML=`<span class="run-copy">${fmtLoose(baseline?.run??cfg.run)} run</span> · <span class="walk-copy">${fmtLoose(baseline?.walk??cfg.walk)} walk</span> × ${baseline?.sets??cfg.sets}`;
-    $("currentLevelMeta").textContent=context.hasLevel
-      ? `${context.sessions.length} ${context.sessions.length===1?"session":"sessions"} completed`
-      : "Your first level";
-    $("setupChoices").classList.toggle("hidden",!context.hasLevel);
-    $("anotherSessionHint").textContent=`Keep Level ${level}`;
-    $("levelUpHint").textContent=`Set up Level ${level+1}`;
-    document.querySelectorAll(".setup-choice").forEach(button=>{
-      const selected=button.dataset.mode===setupMode;
-      button.classList.toggle("selected",selected);
-      button.setAttribute("aria-selected",String(selected));
-    });
+    const custom=setupMode==="custom";
+    $("currentLevelLabel").textContent=custom?"Custom session":`Level ${level}`;
+    $("currentLevelState").textContent=custom?"Outside program":context.complete?"Complete":"Current";
+    $("currentWorkoutTitle").innerHTML=context.complete&&!custom
+      ? `Program complete`
+      : `<span class="run-copy">${fmtLoose(cfg.run)} run</span> · <span class="walk-copy">${fmtLoose(cfg.walk)} walk</span> × ${cfg.sets}`;
+    $("currentLevelMeta").textContent=custom
+      ? "This run won’t unlock program levels"
+      : context.complete?"You completed all 15 prescribed sessions":`${PROGRAM.name} · ${fmtLoose(PROGRAM.paceSec)} /km target`;
     $("customSessionBtn").classList.toggle("active",setupMode==="custom");
     $("customNote").classList.toggle("hidden",setupMode!=="custom");
-    const isLevelUp=setupMode==="levelup" && context.hasLevel;
-    $("levelPreview").classList.toggle("hidden",!isLevelUp);
-    const changed=recipeChanged(baseline);
-    if(isLevelUp && baseline){
-      const intervalPct=(cfg.run-baseline.run)/baseline.run*100;
-      const oldTotal=baseline.run*baseline.sets;
-      const newTotal=cfg.run*cfg.sets;
-      const totalPct=(newTotal-oldTotal)/oldTotal*100;
-      const targetSpeedPct=baseline.paceSec>0&&cfg.paceSec>0?(baseline.paceSec/cfg.paceSec-1)*100:0;
-      $("previewInterval").textContent=signedPct(intervalPct);
-      $("previewTotalRun").textContent=signedPct(totalPct);
-      $("previewTargetPace").textContent=signedPct(targetSpeedPct);
-      $("levelPreviewNote").textContent=changed
-        ? `Compared with Level ${level}`
-        : `Adjust an interval, sets, or target pace to define Level ${level+1}.`;
-    }
-    if(setupMode==="custom"){
+    $("customSessionBtn").textContent=custom?"Back to program":"Set up a custom session";
+    $("setupPanel").classList.toggle("hidden",!custom);
+    $("programSessionCard").classList.toggle("hidden",custom);
+    if(custom){
       $("setupTitle").textContent="Custom workout";
       $("setupHint").textContent="Outside level progression";
-    } else if(isLevelUp){
-      $("setupTitle").textContent=`Level ${level+1} setup`;
-      $("setupHint").textContent="Adjust what changes";
     } else {
-      $("setupTitle").textContent=`Level ${level} workout`;
-      $("setupHint").textContent=context.hasLevel?"Level recipe locked":"Your starting settings";
+      const completed=Math.min(context.currentSessions.length,recipe.sessions);
+      const remaining=Math.max(0,recipe.sessions-completed);
+      $("programSessionLabel").textContent=context.complete?"All levels completed":`Session ${completed+1} of ${recipe.sessions}`;
+      $("programSessionState").textContent=context.complete?"Program complete":"Next session";
+      $("programSessionProgress").style.width=`${context.complete?100:completed/recipe.sessions*100}%`;
+      $("programSessionCompleted").textContent=context.complete?"15 sessions completed":`${completed} completed`;
+      $("programSessionRemaining").textContent=context.complete?"Recovery path finished":`${remaining} remaining`;
     }
     document.querySelectorAll('.stepper button').forEach(button=>{
-      button.disabled=setupMode==="another" && context.hasLevel;
+      button.disabled=!custom;
     });
     if(!running && doneView.classList.contains("hidden")){
-      mainBtn.textContent=setupMode==="custom"?"Start custom session":`Start Level ${isLevelUp?level+1:level}`;
-      mainBtn.disabled=isLevelUp && !changed;
+      mainBtn.textContent=custom?"Start custom session":context.complete?"Program complete":"Start next session";
+      mainBtn.disabled=context.complete&&!custom;
     }
   }
   document.querySelectorAll('.stepper button').forEach(b=>{
@@ -624,10 +731,44 @@
       refreshSetup();
     });
   });
-  document.querySelectorAll('.setup-choice').forEach(button=>{
-    button.addEventListener('click',()=>setSetupMode(button.dataset.mode));
-  });
-  $("customSessionBtn").addEventListener('click',()=>setSetupMode("custom"));
+  $("customSessionBtn").addEventListener('click',()=>setSetupMode(setupMode==="custom"?"program":"custom"));
+
+  function renderProgramPreview(){
+    $("programPreviewLevels").innerHTML=PROGRAM.levels.map(level=>`<div class="program-level-row">
+      <div class="program-level-number">${level.level}</div>
+      <div class="program-level-recipe"><b>${fmtLoose(level.run)} run · ${fmtLoose(level.walk)} walk × ${level.sets}</b><span>${fmtLoose(PROGRAM.paceSec)} /km target</span></div>
+      <div class="program-level-count">${level.sessions} sessions</div>
+    </div>`).join("");
+  }
+  function hideAppViews(){
+    [setupView,activeView,doneView,historyView,importView,programSelectView,programPreviewView].forEach(view=>view.classList.add("hidden"));
+  }
+  function showProgramSelect(){
+    hideAppViews();
+    programSelectView.classList.remove("hidden");
+    appHeader.classList.add("hidden"); controls.classList.add("hidden");
+    body.classList.remove("history-open"); body.classList.add("onboarding-open");
+    window.scrollTo(0,0);
+  }
+  function showProgramPreview(){
+    hideAppViews(); renderProgramPreview();
+    programPreviewView.classList.remove("hidden");
+    appHeader.classList.add("hidden"); controls.classList.add("hidden");
+    body.classList.remove("history-open"); body.classList.add("onboarding-open");
+    window.scrollTo(0,0);
+  }
+  function showTrainer(){
+    hideAppViews();
+    setupView.classList.remove("hidden"); appHeader.classList.remove("hidden"); controls.classList.remove("hidden");
+    body.classList.remove("history-open","onboarding-open");
+    applyProgramRecipe(programContext().currentLevel);
+    setSetupMode("program",false);
+    window.scrollTo(0,0);
+  }
+  function acceptProgram(){
+    writeJson(PROGRAM_KEY,{id:PROGRAM.id,acceptedAt:new Date().toISOString()});
+    showTrainer();
+  }
 
   function buildDots(){
     dotsEl.innerHTML="";
@@ -947,7 +1088,7 @@
   ];
   const POST_REHAB_BACKFILL=[
     stravaSession({id:"strava-2026-07-26",completedAt:"2026-07-26T17:53:00+02:00",level:4,run:300,walk:60,sets:7,targetPaceSec:390,durationSec:2586,distanceKm:6.29,avgPaceSec:411,title:"Step by step"}),
-    stravaSession({id:"strava-2026-07-28",completedAt:"2026-07-28T17:19:00+02:00",level:5,run:450,walk:60,sets:5,targetPaceSec:380,durationSec:2341,distanceKm:6.02,avgPaceSec:388,title:"Don't look at my heart rate"})
+    stravaSession({id:"strava-2026-07-28",completedAt:"2026-07-28T17:19:00+02:00",level:5,run:450,walk:60,sets:5,targetPaceSec:390,durationSec:2341,distanceKm:6.02,avgPaceSec:388,title:"Don't look at my heart rate"})
   ];
   function normalizeSession(item){
     if(!item || typeof item!=="object") return null;
@@ -1007,9 +1148,8 @@
     return true;
   }
   function recordSession(){
-    const context=levelContext();
     const sessionKind=setupMode==="custom"?"custom":"level";
-    const level=sessionKind==="custom"?null:(setupMode==="levelup"&&context.hasLevel?context.currentLevel+1:context.currentLevel);
+    const level=sessionKind==="custom"?null:programContext().currentLevel;
     const avgRunPaceSec=sesDist>0 && sesTime>0 ? sesTime/(sesDist/1000) : 0;
     const session={
       id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
@@ -1054,19 +1194,42 @@
       <div class="session-value"><b>${pace?mmss(pace):"—"}</b><span>${session.paceKind==="activity"?"/km":"/km run"}</span></div>
     </div>`;
   }
-  function groupMarkup(group,currentLevel){
-    const paceValues=group.sessions.map(s=>s.paceSec).filter(Number.isFinite);
-    const target=paceValues.length?paceValues[0]:0;
-    return `<section class="workout-group">
+  function groupMarkup(group,currentLevel,status="completed"){
+    const levelPlan=programLevel(group.level);
+    const target=PROGRAM.paceSec;
+    const sessionWord=group.sessions.length===1?"session":"sessions";
+    const meta=status==="current"
+      ? `${group.sessions.length} of ${levelPlan.sessions} ${sessionWord} completed · ${fmtLoose(target)} /km target`
+      : `${group.sessions.length} of ${levelPlan.sessions} ${sessionWord} recorded · ${fmtLoose(target)} /km target`;
+    return `<section class="workout-group${status==="current"?' roadmap-current':''}">
       <div class="group-head">
-        <div class="group-kicker"><span>Level ${group.level}</span>${group.level===currentLevel?'<span class="current-label">Current</span>':''}</div>
+        <div class="group-kicker"><span>Level ${group.level}</span>${status==="current"?'<span class="current-label">Current</span>':'<span class="current-label">Completed</span>'}</div>
         <div class="group-title"><span class="run-copy">${fmtLoose(group.run)} run</span> · <span class="walk-copy">${fmtLoose(group.walk)} walk</span> × ${group.sets}</div>
-        <div class="group-meta">${group.sessions.length} ${group.sessions.length===1?"session":"sessions"}${target?` · ${fmtLoose(target)} /km target`:""}</div>
+        <div class="group-meta">${meta}</div>
       </div>
-      <div class="session-table">
+      ${group.sessions.length?`<div class="session-table">
         <div class="session-head"><span>Date</span><span style="text-align:right">Distance</span><span style="text-align:right">Duration</span><span style="text-align:right">Avg pace</span></div>
         ${group.sessions.map(historyRow).join("")}
-      </div>
+      </div>`:""}
+    </section>`;
+  }
+  function programGroup(level,sessions){
+    const recipe=programLevel(level);
+    return {level,run:recipe.run,walk:recipe.walk,sets:recipe.sets,paceSec:PROGRAM.paceSec,sessions:sessions.filter(session=>session.level===level)};
+  }
+  function lockedLevelMarkup(level,index){
+    return `<section class="locked-level" aria-label="Level ${level.level} locked">
+      <div class="locked-level-top"><span>Level ${level.level}</span><b>${index===0?"Next · Locked":"Locked"}</b></div>
+      <div class="locked-level-recipe"><span class="run-copy">${fmtLoose(level.run)} run</span> · <span class="walk-copy">${fmtLoose(level.walk)} walk</span> × ${level.sets}</div>
+      <div class="locked-level-meta">${level.sessions} sessions · Unlocks after Level ${level.level-1}</div>
+    </section>`;
+  }
+  function programProgressHeader(context){
+    const completed=context.complete?PROGRAM.levels.length:context.completedLevels.size;
+    const state=context.complete?"Program complete":`Level ${context.currentLevel} of ${PROGRAM.levels.length}`;
+    return `<section class="program-progress-head">
+      <div class="program-progress-title"><div><span>Active program</span><b>${PROGRAM.name}</b></div><strong>${state}</strong></div>
+      <div class="program-steps" aria-label="${completed} of ${PROGRAM.levels.length} levels completed">${PROGRAM.levels.map(level=>`<i class="program-step ${context.completedLevels.has(level.level)?'complete':level.level===context.currentLevel&&!context.complete?'current':''}"></i>`).join("")}</div>
     </section>`;
   }
   function transitionMarkup(newer,older,isCurrentPosition){
@@ -1099,27 +1262,35 @@
   }
   function renderHistory(){
     const sessions=loadHistory(), content=$("historyContent");
-    if(!sessions.length){
-      content.innerHTML='<div class="history-empty"><h3>No finished runs yet</h3><p>Your completed workouts will appear here automatically, grouped as your run and walk intervals progress.</p></div>';
-      return;
-    }
     const totalRun=sessions.reduce((sum,s)=>sum+s.runDistanceM,0);
     const totalWalk=sessions.reduce((sum,s)=>sum+s.walkDistanceM,0);
     const totalTime=sessions.reduce((sum,s)=>sum+s.totalDurationSec,0);
-    const groups=groupHistory(sessions);
+    const context=programContext();
+    const levelSessions=sessions.filter(session=>session.sessionKind==="level");
     const customSessions=sessions.filter(session=>session.sessionKind==="custom");
-    const currentLevel=groups[0]?.level||0;
-    let groupHtml="";
-    groups.forEach((group,index)=>{
-      groupHtml+=groupMarkup(group,currentLevel);
-      if(groups[index+1]) groupHtml+=transitionMarkup(group,groups[index+1],group.level===currentLevel);
+    const currentGroup=programGroup(context.currentLevel,levelSessions);
+    const futureLevels=context.complete?[]:PROGRAM.levels.filter(level=>level.level>context.currentLevel);
+    const plannedTransition=futureLevels.length?transitionMarkup(programGroup(futureLevels[0].level,[]),currentGroup,false):"";
+    const futureHtml=futureLevels.map(lockedLevelMarkup).join("");
+    const completedLevels=[...context.completedLevels].filter(level=>level!==context.currentLevel).sort((a,b)=>b-a);
+    let completedHtml="";
+    completedLevels.forEach((level,index)=>{
+      const group=programGroup(level,levelSessions);
+      completedHtml+=groupMarkup(group,context.currentLevel,"completed");
+      const nextLevel=completedLevels[index+1];
+      if(nextLevel) completedHtml+=transitionMarkup(group,programGroup(nextLevel,levelSessions),false);
     });
+    const stats=sessions.length
+      ? `<div class="history-summary"><span><b>${sessions.length}</b> sessions · <b>${fmtKm(totalRun)}</b> running</span><span><b>${fmtKm(totalWalk)}</b> walking · <b>${fmtDuration(totalTime)}</b> active</span></div>`
+      : `<div class="history-summary"><span>Your first session is ready when you are.</span></div>`;
+    const completeNote=context.complete?'<div class="program-complete-note"><b>Recovery program complete</b><span>All six levels and 15 prescribed sessions are behind you.</span></div>':"";
+    const completedSection=completedHtml?`<div class="roadmap-label">Completed journey</div><div class="history-groups completed-journey">${completedHtml}</div>`:"";
     const customHtml=customSessions.length?`<section class="other-history"><div class="other-head"><b>Other sessions</b><span>Custom workouts outside level progression</span></div><div>${customSessions.map(otherSessionMarkup).join("")}</div></section>`:"";
-    content.innerHTML=`<div class="history-summary"><span><b>${sessions.length}</b> sessions · <b>${fmtKm(totalRun)}</b> running</span><span><b>${fmtKm(totalWalk)}</b> walking · <b>${fmtDuration(totalTime)}</b> active</span></div><div class="history-groups">${groupHtml}</div>${customHtml}<p class="history-note">History stays only on this device.</p>`;
+    content.innerHTML=`${programProgressHeader(context)}${stats}${completeNote}<div class="roadmap-label">${context.complete?"Final level":"Current level"}</div>${groupMarkup(currentGroup,context.currentLevel,"current")}${plannedTransition}${futureHtml}${completedSection}${customHtml}<p class="history-note">Program and history stay only on this device.</p>`;
   }
   function showHistory(){
     historyReturnView=doneView.classList.contains('hidden')?'setup':'done';
-    setupView.classList.add('hidden'); activeView.classList.add('hidden'); doneView.classList.add('hidden'); importView.classList.add('hidden');
+    setupView.classList.add('hidden'); activeView.classList.add('hidden'); doneView.classList.add('hidden'); importView.classList.add('hidden'); programSelectView.classList.add('hidden'); programPreviewView.classList.add('hidden');
     historyView.classList.remove('hidden'); appHeader.classList.add('hidden'); controls.classList.add('hidden');
     body.classList.add('history-open');
     renderHistory(); window.scrollTo(0,0);
@@ -1141,7 +1312,7 @@
     }).join("");
   }
   function showImport(){
-    setupView.classList.add('hidden'); activeView.classList.add('hidden'); doneView.classList.add('hidden'); historyView.classList.add('hidden');
+    setupView.classList.add('hidden'); activeView.classList.add('hidden'); doneView.classList.add('hidden'); historyView.classList.add('hidden'); programSelectView.classList.add('hidden'); programPreviewView.classList.add('hidden');
     importView.classList.remove('hidden'); appHeader.classList.add('hidden'); controls.classList.add('hidden'); body.classList.add('history-open');
     renderImport(); window.scrollTo(0,0);
   }
@@ -1149,8 +1320,9 @@
     const merged=new Map(loadHistory().map(session=>[session.id,session]));
     [...REHAB_BACKFILL,...POST_REHAB_BACKFILL].forEach(session=>merged.set(session.id,session));
     writeJson(HISTORY_KEY,[...merged.values()]);
+    writeJson(PROGRAM_KEY,{id:PROGRAM.id,acceptedAt:new Date().toISOString(),migrated:true});
     restoreLatestWorkoutSettings();
-    setSetupMode("another",false);
+    setSetupMode("program",true);
     const status=$("importStatus");
     status.textContent="Imported 11 sessions into this device. You can safely run this import again without creating duplicates.";
     status.classList.remove('hidden');
@@ -1313,7 +1485,7 @@
     $("historyBtn").classList.remove('hidden');
     mainBtn.classList.remove('paused');
     restoreLatestWorkoutSettings();
-    setSetupMode("another",false);
+    setSetupMode("program",true);
   }
 
   // ---------- Buttons ----------
@@ -1333,10 +1505,20 @@
   $("historyBackBtn").addEventListener('click',closeHistory);
   $("importHistoryBtn").addEventListener('click',importBackfill);
   $("importProgressBtn").addEventListener('click',showHistory);
+  $("programCard").addEventListener('click',showProgramPreview);
+  $("programPreviewBackBtn").addEventListener('click',showProgramSelect);
+  $("acceptProgramBtn").addEventListener('click',acceptProgram);
 
-  restoreLatestWorkoutSettings();
-  setSetupMode("another",false);
-  if(new URLSearchParams(location.search).get('backfill')==='joel-rehab-2026') showImport();
+  const backfillRequested=new URLSearchParams(location.search).get('backfill')==='joel-rehab-2026';
+  if(backfillRequested){
+    restoreLatestWorkoutSettings();
+    setSetupMode("program",false);
+    showImport();
+  } else if(enrollExistingHistory()){
+    showTrainer();
+  } else {
+    showProgramSelect();
+  }
 })();
 </script>
 </body>

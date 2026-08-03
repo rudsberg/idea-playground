@@ -2,64 +2,59 @@
 
 ## Comparison target
 
-- Source visual truth: `qa/05-current-start-audit.png`
-- Primary implementation: `qa/06-next-workout-390.png`
-- Level-up state: `qa/07-level-up-390.png`
-- Custom-session state: `qa/08-custom-session-390.png`
-- Updated progress screen: `qa/09-level-progress-390.png`
-- Narrow responsive pass: `qa/11-next-workout-320-pass2.png`
-- Pace-only Level-up state: `qa/12-pace-only-level-up-390.png` and `qa/12-pace-only-level-up-320.png`
-- Single-row target-pace progression: `qa/13-target-pace-progress-390.png` and `qa/13-target-pace-progress-320.png`
-- Combined source/implementation evidence: `qa/10-level-picker-comparison.png`
-- Source and implementation: 390 × 844 pixels at device scale factor 1.
+- Source visual truth: `qa/05-current-start-audit.png` and the existing Progress references in `qa/13-target-pace-progress-390.png` / `qa/13-target-pace-progress-320.png`.
+- Combined source/implementation evidence: `qa/20-program-comparison.png`.
+- Program selection: `qa/14-program-select-390.png` and `qa/14-program-select-320.png`.
+- Program preview: `qa/15-program-preview-390.png` and `qa/15-program-preview-320.png`.
+- Guided next session: `qa/16-next-program-session-390.png` and `qa/16-next-program-session-320.png`.
+- New-user roadmap: `qa/17-program-roadmap-390.png` and `qa/17-program-roadmap-320.png`.
+- Migrated Level 6 state: `qa/18-migrated-level-6-390.png` and `qa/19-migrated-roadmap-390.png`.
+- Source and viewport implementation captures use device scale factor 1. Phone viewport captures are 390 × 844 and 320 × 844 CSS pixels; full-page roadmap captures preserve the same CSS width.
 
 ## State and intended outcome
 
-The existing start screen is the visual source. The selected product change adds a decision layer for continuing the current Level, progressing to a new Level, or configuring a secondary custom session without changing the established dark mobile visual language.
+The existing dark mobile trainer is the visual source. The new flow must prevent a first-time user from entering the trainer until they open and accept the single available program, then replace manual level creation with a prescribed next session and a locked six-level roadmap. Existing local history must migrate into the program without inventing Joel's missing second Level 4 run.
 
 ## Full-view comparison evidence
 
-The combined comparison shows that the implementation preserves the source header, dark navy canvas, single contained workout editor, green primary action, typography family, control shapes, and bottom action placement. The new current-Level context and two-option selector occupy previously unused vertical space rather than compressing the workout controls.
+`qa/20-program-comparison.png` places the source trainer, program selection, and program preview in one normalized comparison. The new screens preserve the navy canvas, system typeface, green primary action, blue/green workout semantics, compact uppercase labels, 16–22px card radii, and 20px mobile gutters. The onboarding screens add a stronger explanatory hierarchy without introducing a competing visual system.
 
-The hierarchy now reads in the required order: current Level context, next-session decision, workout configuration, tertiary custom action, then Start. The primary action remains visible at 320 × 568, 320 × 667, 320 × 844, and 390 × 844.
+The guided home state keeps the source header and bottom action position. Its content now reads in the intended order: current Level, prescribed workout, required-session progress, tertiary custom action, then Start next session.
 
-## Focused-state evidence
+The roadmap retains the existing compact one-row progression bridge and charging green rail. The current Level has exactly one glowing position marker; future Levels are readable but visibly subdued and labeled Locked. Completed history remains detailed and honest, including `1 of 2 sessions recorded` at Level 4.
 
-- Another session: run, walk, sets, and target pace are visibly locked as one Level recipe; the button reads `Start Level 5`.
-- Level up: the selected state is clear, all recipe controls unlock, and the compact comparison shows live run-interval, total-running, and target-speed percentages. A pace-only change enables the next Level.
-- Custom session: neither standard path appears selected, the editor is labeled as outside progression, and the supporting copy explains where the session will be stored.
-- Progress: all visible Phase terminology has been replaced by Level, while the single current-position marker and charging rails remain intact.
+## Focused comparison evidence
 
-## Findings and iteration history
+- At 320px, the program preview keeps all six prescriptions and the Accept program CTA within the page width; the title wraps intentionally without colliding with Back or Program preview.
+- At 320px, all three progression metrics remain on one row with no horizontal overflow.
+- At 390px, migrated history makes Level 6 current and shows Level 4 as completed through advancement while retaining the one recorded session.
+- Browser measurements report `scrollWidth === innerWidth` at 320px and 390px for program selection and preview.
 
-- [P2 resolved] At 320px, the original absolute Progress action overlapped the centered product title.
-  - Fix: converted the header to a three-column grid and tightened the narrow breakpoint typography.
-  - Post-fix evidence: `qa/11-next-workout-320-pass2.png` shows clear separation with no horizontal overflow.
-- [P2 resolved] Adding target pace risked wrapping the compact progression bridge or creating a second row at 320px.
-  - Fix: kept three prescription metrics—run interval, total running, and target pace—in equal grid columns; measured distance and actual pace remain in the session table.
-  - Post-fix evidence: `qa/13-target-pace-progress-320.png` shows all metric cells sharing one top coordinate with no overflow.
-- No remaining actionable P0, P1, or P2 findings.
+## Findings and comparison history
+
+- No actionable P0, P1, or P2 differences remain.
+- The first comparison showed no structural overflow, clipped controls, unreadable locked states, or hierarchy regressions, so no visual fix loop was required.
+- P3 observation: the preview title wraps to two lines at 320px. This is acceptable because the program name remains the strongest element and the six-level list plus CTA stay visible without compression.
 
 ## Required fidelity surfaces
 
-- Fonts and typography: the existing system typeface, weights, uppercase labels, tabular values, and compact mobile scale are preserved. New labels use the same 10–13px hierarchy as Progress.
-- Spacing and layout rhythm: the new sections use the existing 8–16px rhythm, 16px page gutters, and 16–20px radii. The bottom action remains visually anchored.
-- Colors and tokens: Level progression uses the established run green; walking remains blue; secondary and disabled states use existing muted and ring-track tokens.
-- Image quality and assets: this screen contains no raster imagery or non-standard icon assets. Existing text controls are preserved; no placeholder visual assets were introduced.
-- Copy and content: `Level`, `Another session`, `Level up`, `Target pace`, and `Custom session` match the selected terminology and mental model. Custom copy explicitly states that the session does not affect progression.
-- Accessibility and responsiveness: choice buttons expose tab roles and selected state, disabled controls use native semantics, the live progression preview uses an announced region, and no horizontal overflow appears at tested widths.
+- Fonts and typography: preserves the existing system font, optical weights, tabular numeric values, uppercase micro-labels, and 9–32px mobile hierarchy. Headings and prescriptions remain readable at both tested widths.
+- Spacing and layout rhythm: preserves 20px onboarding gutters, 16px Progress gutters, 8–18px internal spacing, and the source card radii. Primary actions remain comfortably tappable and visually anchored.
+- Colors and visual tokens: reuses the established background, card, border, run green, walk blue, muted text, and charging green progression palette. Locked states use opacity and muted borders without losing legibility.
+- Image quality and asset fidelity: the referenced product screens contain no raster product imagery, illustrations, logos, or non-standard icon assets. No placeholder imagery was introduced.
+- Copy and content: the program name, all six prescriptions, 15-session total, 6:30/km target, acceptance language, next-session language, custom-session boundary, and locked prerequisites match the approved model.
+- Accessibility and responsiveness: onboarding uses semantic buttons, the program card has an explicit accessible label, locked cards expose state in text, the progress strip has an accessible completion label, and no tested state has horizontal overflow.
 
 ## Primary interactions tested
 
-- Continue the current Level with locked structural settings and adjustable tempo.
-- Select Level up, edit the Level recipe, see live progression deltas, and enable the next-Level start action.
-- Create a new Level by changing target pace alone, with speed percentage calculated from the inverse pace relationship.
-- Select a custom session and unlock all configuration controls without assigning a Level.
-- Restore the latest Level recipe after reload or import.
-- Migrate legacy history into stable Level numbers.
-- Keep custom sessions in aggregate totals while rendering them under Other sessions rather than in the Level ladder.
-- Render five imported Levels newest-first with exactly one current-position marker.
-- Preserve pace-zone, halfway cue, GPS handling, audio, and completion behavior.
-- Browser console and page errors: none in setup-state, Level-up, custom-session, and Progress captures.
+- Open the only available program, return to selection, reopen it, and explicitly accept it.
+- Persist acceptance on the device and enter Level 1, session 1 of 3.
+- Automatically migrate existing history and prescribe Level 6, session 1 of 2.
+- Keep a missing Level 4 session visible without blocking already-reached Levels.
+- Unlock Levels from fixed required-session counts and show a complete state after both Level 6 sessions.
+- Configure a custom run outside program progression and return to the prescribed program session.
+- Render current, locked, completed, and program-complete Progress states.
+- Preserve GPS pace measurement, ±20-second target tolerance, halfway cue, audio, private backfill, and duplicate-safe import.
+- Browser console and page errors: none in the captured onboarding, preview, guided session, new-user roadmap, and migrated Level 6 states.
 
 final result: passed
