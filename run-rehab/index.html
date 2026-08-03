@@ -1299,7 +1299,7 @@
     historyView.classList.add('hidden'); appHeader.classList.remove('hidden'); controls.classList.remove('hidden');
     body.classList.remove('history-open');
     if(historyReturnView==='done'){
-      doneView.classList.remove('hidden'); mainBtn.textContent='Set up next run'; doneHistoryBtn.classList.remove('hidden');
+      doneView.classList.remove('hidden'); mainBtn.textContent=setupMode==="custom"?'Back to program':'Next session'; doneHistoryBtn.classList.remove('hidden');
     } else {
       setupView.classList.remove('hidden'); doneHistoryBtn.classList.add('hidden'); refreshSetup();
     }
@@ -1436,13 +1436,13 @@
     doneView.classList.remove('hidden');
     body.classList.remove('phase-run','phase-walk');
     $("historyBtn").classList.remove('hidden');
-    mainBtn.textContent='Set up next run';
     mainBtn.classList.remove('paused');
     resetBtn.classList.add('hidden');
     doneHistoryBtn.classList.remove('hidden');
     const totalStr = fmtLoose(cfg.sets*(cfg.run+cfg.walk));
     const ses = sesTime>0 ? sesDist/sesTime : null;
     const saved=recordSession();
+    mainBtn.textContent=saved.sessionKind==="custom"?'Back to program':'Next session';
     $("doneSummary").textContent = ses
       ? `${cfg.sets} sets · ${totalStr} total · Session avg run pace ${mmss(1000/ses)}/km · saved on this device`
       : `${cfg.sets} sets · ${totalStr} total · saved on this device`;

@@ -127,6 +127,7 @@ test('pace engine: warm-up, set averages, dropout robustness, session average', 
   expect(lastSes).toBeGreaterThan(TARGET_PACE_SEC * 0.85);
   expect(lastSes).toBeLessThan(TARGET_PACE_SEC * 1.15);
   const summary = await page.locator('#doneSummary').textContent();
+  await expect(page.locator('#mainBtn')).toHaveText('Back to program');
   const m = /Session avg run pace (\d+):(\d{2})\/km/.exec(summary ?? '');
   expect(m, `summary reports a session pace (got: ${summary})`).not.toBeNull();
   const sumPace = Number(m[1]) * 60 + Number(m[2]);
